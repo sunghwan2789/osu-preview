@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!--**********************************************
+        YOU CAN CONTACT ME at sunghwan2789 @ github
+    ***********************************************-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="robots" content="nofollow, noindex, noarchive">
+    <base href="https://bloodcat.com/osu/"></base>
+    <title>미리보기 - osu! 비트맵 미러</title>
+    <style>
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+body {
+    margin: 0;
+    background: #000;
+}
+    button {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        outline: 0;
+        background: none;
+        color: #fff;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        font: 14px sans-serif;
+    }
+    button::-moz-focus-inner {
+        padding: 0;
+        border: 0;
+    }
+    body > * {
+        position: fixed;
+    }
+    #speed, #control, #title {
+        background: rgba(0, 0, 0, .6);
+        display: none;
+    }
+    body.h #speed, body.h #control, body.h #title {
+        display: block;
+    }
+    #container {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+        canvas {
+            transform-origin: 0 0;
+            -webkit-transform-origin: 0 0;
+        }
+    #play {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: .6;
+    }
+        #play.e::before {
+            content: '\25b6';
+            font: 256px sans-serif;
+            text-shadow: 0 0 8px #000;
+        }
+    #speed {
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        width: 40px;
+    }
+        #speed button:not(.e) {
+            color: #666;
+        }
+    #control {
+        bottom: 0;
+        left: 0;
+        width: 100%;
+    }
+        input {
+            margin: 4px;
+            padding: 0;
+            height: 32px;
+            box-sizing: border-box;
+        }
+        #progress {
+            width: calc(100% - 156px);
+        }
+        #volume {
+            width: 100px;
+        }
+    #title {
+        top: 0;
+        left: 0;
+        width: 100%;
+        white-space: nowrap;
+    }
+        img {
+            vertical-align: middle;
+            position: relative;
+            border: 0;
+            top: -1px;
+            padding: 0 10px;
+        }
+        a {
+            font: 14px/40px sans-serif;
+            border-bottom: 1px dashed transparent;
+            color: #fff;
+            text-decoration: none;
+        }
+        a:hover {
+            border-bottom-color: #ddd;
+        }
+        #share, #fullscreen {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font: 21px sans-serif;
+        }
+    #sharePrompt {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, .6);
+        display: none;
+    }
+        #sharePrompt button {
+            float: right;
+            background: #49f;
+        }
+        #sharePrompt input {
+            width: 100%;
+            margin: 0;
+        }
+    </style>
+    <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-21956094-2','bloodcat.com');ga('send','pageview');</script>
+<body class="h">
+    <div id="container"><canvas width="1024" height="768"></canvas></div>
+    <button id="play"></button>
+    <div id="speed"><button value="1.5">DT</button><button class="e" value="1">-</button><button value="0.5">HT</button></div>
+    <div id="control"><input id="progress" type="range" min="0" max="0" value="0"><input id="volume" type="range" min="0" max="100" value="100"><button id="fullscreen">&#128187;</button></div>
+    <div id="title"><img src="/_data/BloodCat.svg" width="20" height="30" alt="아까네코 종이모형"><a href="//osu.ppy.sh/b/" target="_blank">-</a><button id="share">&#10168;</button></div>
+
+    <div id="sharePrompt"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <script src="player/timingpoint.js"></script>
+    <script src="player/hitobject.js"></script>
+    <script src="player/beatmap.js"></script>
+
+    <script src="player/hitcircle.js"></script>
+    <script src="player/slider.js"></script>
+    <script src="player/spinner.js"></script>
+    <script src="player/standard.js"></script>
+
+    <script src="player/hitnote.js"></script>
+    <script src="player/holdnote.js"></script>
+    <script src="player/mania.js"></script>
+    <script>
+var Player = $('canvas');
+Player.audio = new Audio();
+Player.background = $('<canvas>').prop({ width: Player.width(), height: Player.height() })[0];
+Player.beatmap = undefined;
+Player.ctx = Player[0].getContext('2d');
+Player.body = $('body');
+Player.container = $('#container');
+Player.button = $('#play');
+Player.progress = $('#progress');
+Player.volume = $('#volume');
+Player.speed = $('#speed');
+Player.title = $('#title');
+
+
+Player.loadBeatmap = function(id)
+{
+    Player.beatmap = undefined;
+    $(Player.audio).trigger('pause')[0].pause();
+    Player.button.removeClass('e');
+
+    $('a', Player.title).prop('href', '//osu.ppy.sh/b/' + id).text('-');
+    Player.audio.src = 'a/' + id;
+    // var DLOPT = JSON.parse(decodeURIComponent((document.cookie.match(/\s?DLOPT=(.+?);/) || [])[1] || '{"bg":null}'));
+    // if (!DLOPT.bg || DLOPT.bg == 'image')
+    // {
+    //     Player.container.css('background-image', 'url(' + (DLOPT.bg ? '_data/backgrounds/' + DLOPT.image : 'i/' + id) + ')');
+    // }
+    // else
+    // {
+    //     Player.container.css('background-color', DLOPT.color);
+    // }
+    $.get('b/' + id).done(function(osu) {
+        try
+        {
+            Player.beatmap = new Beatmap();
+            Player.beatmap.parse(osu);
+            $('a', Player.title).text(Player.beatmap.toString());
+            $(new Image()).on('load', function() {
+                Player.beatmap.makeBG(this);
+            }).prop('src', 'i/' + id);
+            Player.button.addClass('e');
+            Player.play();
+        }
+        catch (e)
+        {
+            alert(e);
+            throw e;
+        }
+    });
+};
+Player.play = function()
+{
+    Player.ctx.clearRect(0, 0, Player.w, Player.h);
+    Player.beatmap.draw(Player.audio.currentTime);
+    if (!Player.audio.paused)
+    {
+        requestAnimationFrame(Player.play);
+    }
+};
+
+Player.toggle = 3000;
+Player.w = Player.width();
+Player.h = Player.height();
+Player.scale = Player.w / 640;
+Player.getLength = function(l)
+{
+    return l * Player.scale;
+};
+
+
+$(window).on('resize', function() {
+    var w = this.innerWidth,
+        h = this.innerHeight;
+    if (w * 3 > h * 4)
+    {
+        Player.css('transform', 'scale(' + h / Player.h + ')')
+              .container.width(h / 3 * 4).height(h);
+    }
+    else
+    {
+        Player.css('transform', 'scale(' + w / Player.w + ')')
+              .container.width(w).height(w / 4 * 3);
+    }
+}).trigger('resize').on('hashchange', function() {
+    Player.loadBeatmap(this.location.hash.slice(1));
+}).trigger('hashchange');
+Player.body.on('mousemove', function() {
+    clearTimeout(Player.body.data('h'));
+    Player.body.addClass('h').data('h', setTimeout(function() {
+        if (!Player.audio.paused)
+        {
+            Player.body.removeClass('h');
+        }
+    }, Player.toggle));
+}).on('keydown', function(e) {
+    if (e.keyCode == 187 || e.keyCode == 189)
+    {
+        if (typeof Player.beatmap.scrollVelocity !== 'undefined')
+        {
+            // 187: =, 189: -
+            Player.beatmap.scrollVelocity += 188 - e.keyCode;
+            console.log(Player.beatmap.scrollVelocity);
+        }
+    }
+});
+$(Player.audio).on('pause', function() {
+    Player.body.trigger('mousemove');
+    if (typeof Player.beatmap !== 'undefined')
+    {
+        Player.button.addClass('e');
+    }
+}).on('durationchange', function() {
+    Player.progress.val(0).prop('max', Player.audio.duration);
+    Player.volume.trigger('change');
+    $('.e', Player.speed).trigger('click');
+}).on('play', function() {
+    Player.button.removeClass('e');
+    Player.beatmap.current = {};
+    Player.play();
+}).on('timeupdate', function() {
+    Player.progress.val(Player.audio.currentTime);
+});
+Player.progress.on('change', function() {
+    Player.audio.currentTime = Player.progress.val();
+    Player.beatmap.current = {};
+    if (Player.audio.paused)
+    {
+        Player.play();
+    }
+});
+Player.volume.on('change', function() {
+    Player.audio.volume = Player.volume.val() / 100;
+});
+$('button', Player.speed).on('click', function() {
+    $('.e', Player.speed).removeClass('e');
+    Player.audio.playbackRate = $(this).addClass('e').val();
+});
+Player.button.on('click', function(e) {
+    e.preventDefault();
+    if (Player.button.hasClass('e'))
+    {
+        Player.audio.play();
+    }
+    else
+    {
+        Player.audio.pause();
+    }
+});
+$('#share').on('click', function(e) {
+    e.preventDefault();
+    Player.audio.pause();
+    var canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 480;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(Player.background, 0, 0, Player.background.width, Player.background.height, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(Player[0], 0, 0, Player.w, Player.h, 0, 0, canvas.width, canvas.height);
+    var logo = document.querySelector('img');
+    ctx.fillRect(0, 0, canvas.width, 40);
+    ctx.drawImage(logo, 0, 0, logo.clientWidth, logo.clientHeight, 10, 5, logo.clientWidth, logo.clientHeight);
+    var title = $('a', Player.title).text();
+    ctx.fillStyle = '#fff';
+    ctx.font = '14px "Malgun Gothic"';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(title, 40, 20);
+    ctx.beginPath();
+    var playWidth = 160;
+    var playHeight = 200;
+    ctx.fillStyle = 'rgba(255, 255, 255, .6)';
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#000';
+    var sx = (canvas.width - playWidth) / 2;
+    var sy = (canvas.height - playHeight) / 2;
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx + playWidth, sy + playHeight / 2);
+    ctx.lineTo(sx, sy + playHeight);
+    ctx.fill();
+    $('#sharePrompt').html([
+            '코드를 붙여넣어 이 미리보기를 공유하세요~',
+            '<p><code>&lt;iframe&gt;</code>을 쓸 수 있는 경우',
+                '<input type="text" value="$1" readonly>',
+            '<p><code>&lt;img&gt;</code>을 쓸 수 있는 경우',
+                '<input type="text" value="$2" readonly>',
+            '<p>아무 것도 못 쓰면 주소 공유로~',
+                '<input type="text" value="$3" readonly>',
+            // '<p>스크린샷.jpg',
+            //     '<input type="text" value="$4 readonly>',
+        ].join('')
+        .replace(/\$1/g, '<iframe src="$1" width="640" height="480"></iframe>'.replace(/"/g, '&quot;'))
+        .replace(/\$3/g, '$1').replace(/\$4/g, '$3')
+        .replace(/\$2/g, '<a href="$1"><img src="$3" width="640" height="480" style="display:block">$2</a>'.replace(/"/g, '&quot;'))
+        .replace(/\$1/g, location.href.replace(/^http:/, 'https:'))
+        .replace(/\$2/g, 'osu! 비트맵 미러에서 ' + title.replace(/"/g, '&quot;') + ' 미리보기')
+        .replace(/\$3/g, canvas.toDataURL('image/jpeg', 0.6)))
+    .prepend($('<button>').html('&#10005;').on('click', function() {$('#sharePrompt').hide()}))
+    .show();
+    canvas.remove();
+});
+$('#fullscreen').on('click', function(e) {
+    e.preventDefault();
+    var doc = window.document;
+    var docEl = doc.documentElement;
+
+    var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        requestFullScreen.call(docEl);
+    }
+    else {
+        cancelFullScreen.call(doc);
+    }
+});
+    </script>
+</html>
