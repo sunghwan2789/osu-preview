@@ -6,8 +6,11 @@ function Slider(data)
     this.points = Slider.getPoints.call(this, data[0]);
     this.repeat = data[1] | 0;
     this.pixelLength = +data[2];
+    var velocity = Player.beatmap.SliderMultiplier *
+            (100 / Player.beatmap.getTimingPoint(this.time).beatLength);
+    this.endTime = this.time + this.pixelLength / velocity * this.repeat / 1000;
+
     Slider.parsePath.call(this);
-    this.endTime += this.time;
 
     this.draw = Slider.draw;
 }
@@ -58,9 +61,6 @@ Slider.parsePath = function()
     var EOP = this.path.slice(-1)[0];
     this.endX = EOP.x;
     this.endY = EOP.y;
-    var velocity = Player.beatmap.SliderMultiplier *
-            (100 / Player.beatmap.getTimingPoint(this.time).beatLength);
-    this.endTime = this.pixelLength / velocity * this.repeat / 1000;
 };
 Slider.parseBezier = function() //TODO FIX LENGTH
 {
