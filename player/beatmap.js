@@ -1,13 +1,13 @@
 function Beatmap(osu)
 {
-    // v20150720
+    // v20150721
     // support standard, ~~mania~~
     // compatible through osu file format v14
     // osu! has no default colorset now: #ffffff
     this.current = {};
 
     // [General]
-    this.Mode = Standard.id;
+    this.Mode = 0;
 
     // [Metadata]
     this.Title = undefined;
@@ -34,7 +34,7 @@ function Beatmap(osu)
     // [HitObjects]
     this.HitObjects = [];
 }
-Beatmap.modes = [];
+Beatmap.modes = {};
 Beatmap.prototype = {
     hitObjectTypes: undefined,
     hitObjectTypeMask: 0,
@@ -103,33 +103,24 @@ Beatmap.prototype.parsePair = function(line)
 };
 Beatmap.prototype.parseTimingPoint = function(line)
 {
-    var data = line.split(',');
-    if (typeof data[1] === 'undefined')
+    var timingPoint = new TimingPoint(line);
+    if (typeof timingPoint.time !== 'undefined')
     {
-        return;
-    }
-    if (data[1] > 0)
-    {
-        this.current.timingPoint = new TimingPoint(data[0] / 1000, data[1] | 0);
-        this.TimingPoints.push(this.current.timingPoint);
-    }
-    else
-    {
-        this.TimingPoints.push(new TimingPoint(data[0] / 1000, this.current.timingPoint.beatLength * (data[1] / -100.0)));
+        this.TimingPoints.push(timingPoint);
     }
 };
 Beatmap.prototype.parseColor = function(line)
 {
     var data = line.split(':');
-    if (typeof data[1] !== 'undefined')
+    if (typeof data[1] !== 'undefined' &&
+        /Combo\d+/.test(data[0]))
     {
         this.Colors.push('rgb(' + data[1] + ')');
     }
 };
 Beatmap.prototype.parseHitObject = function(line)
 {
-    if (typeof this.hitObjectTypes === 'undefined' ||
-        typeof this.processHitObject === 'undefined')
+    if (typeof this.hitObjectTypes === 'undefined')
     {
         var mode = Beatmap.modes[this.Mode];
         // **********************************************
@@ -139,16 +130,18 @@ Beatmap.prototype.parseHitObject = function(line)
         }
         // **********************************************
         mode.call(this);
-        this.hitObjectTypeMask = 0;
-        for (var i = 0; i < this.hitObjectTypes.length; i++)
+        this.hitObjectTypeMask = Object.keys(this.hitObjectTypes).reduce(function(a, b)
         {
-            this.hitObjectTypeMask |= this.hitObjectTypes[i].id;
-        }
+            return a | b;
+        });
     }
     var hitObject = new HitObject(line);
     if (typeof hitObject.type !== 'undefined')
     {
-        this.processHitObject(hitObject);
+        if (typeof this.processHitObject !== 'undefined')
+        {
+            this.processHitObject(hitObject);
+        }
         this.HitObjects.push(hitObject);
     }
 };

@@ -22,10 +22,7 @@ function Mania()
     this.processBG = Mania.processBG;
 }
 Mania.id = 3;
-Mania.hitObjectTypes = [
-    HitNote,
-    HoldNote
-];
+Mania.hitObjectTypes = {};
 Beatmap.modes[Mania.id] = Mania;
 //Mania.prototype = Object.create(Beatmap.prototype);
 //Mania.prototype.costructor = Mania;

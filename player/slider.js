@@ -1,64 +1,20 @@
 function Slider(data)
 {
-    this.type = Slider.id;
+    HitCircle.parseFlag.call(this);
 
-    this.path = [ this ];
-    this.endX = this.x;
-    this.endY = this.y;
-    this.repeat = 1;
-    this.endTime = this.time;
-
-    //if (this instanceof Slider)
-    //{
-    //    this.parse(data);
-    //}
-    //else
-    //{
-    //    Slider.prototype.parse.call(this, data);
-    //}
-    Slider.parse.call(this, data);
+    this.sliderType = data[0][0];
+    this.points = Slider.getPoints.call(this, data[0]);
+    this.repeat = data[1] | 0;
+    this.pixelLength = +data[2];
+    Slider.parsePath.call(this);
+    this.endTime += this.time;
 
     this.draw = Slider.draw;
 }
 Slider.id = 2;
-//Slider.prototype = Object.create(HitObject.prototype);
+Standard.hitObjectTypes[Slider.id] = Slider;
+//Slider.prototype = Object.create(HitCircle.prototype);
 //Slider.prototype.constructor = Slider;
-Slider.parse = function(data)
-{
-    var type = data[0][0],
-        points = Slider.getPoints.call(this, data[0]),
-        length = +data[2],
-        velocity = Player.beatmap.SliderMultiplier *
-            (100 / Player.beatmap.getTimingPoint(this.time).beatLength);
-    switch (type)
-    {
-        case 'B':
-        {
-            Slider.parseBezier.call(this, points, length);
-            break;
-        }
-        case 'C':
-        {
-            Slider.parseCatmull.call(this, points, length);
-            break;
-        }
-        case 'P':
-        {
-            Slider.parsePeppy.call(this, points, length);
-            break;
-        }
-        case 'L':
-        {
-            Slider.parseLinear.call(this, points, length);
-            break;
-        }
-    }
-    var EOP = this.path.slice(-1)[0];
-    this.endX = EOP.x;
-    this.endY = EOP.y;
-    this.repeat = data[1] | 0;
-    this.endTime += data[2] / velocity * this.repeat / 1000;
-};
 Slider.getPoints = function(data)
 {
     var points = data.split('|');
@@ -73,12 +29,45 @@ Slider.getPoints = function(data)
     points[0] = this;
     return points;
 };
-Slider.parseBezier = function(points, length) //TODO FIX LENGTH
+Slider.parsePath = function()
+{
+    this.path = [ this ];
+    switch (this.sliderType)
+    {
+        case 'B':
+        {
+            Slider.parseBezier.call(this);
+            break;
+        }
+        case 'C':
+        {
+            Slider.parseCatmull.call(this);
+            break;
+        }
+        case 'P':
+        {
+            Slider.parsePeppy.call(this);
+            break;
+        }
+        case 'L':
+        {
+            Slider.parseLinear.call(this);
+            break;
+        }
+    }
+    var EOP = this.path.slice(-1)[0];
+    this.endX = EOP.x;
+    this.endY = EOP.y;
+    var velocity = Player.beatmap.SliderMultiplier *
+            (100 / Player.beatmap.getTimingPoint(this.time).beatLength);
+    this.endTime = this.pixelLength / velocity * this.repeat / 1000;
+};
+Slider.parseBezier = function() //TODO FIX LENGTH
 {
     // https://github.com/pictuga/osu-web/blob/master/js/curves.js
     var segmentLength = 5,
-        n = points.length - 1,
-        segments = length / segmentLength | 0;
+        n = this.points.length - 1,
+        segments = this.pixelLength / segmentLength | 0;
     for (var i = 1; i <= segments; i++)
     {
         var c = 1,
@@ -87,8 +76,8 @@ Slider.parseBezier = function(points, length) //TODO FIX LENGTH
         for (var j = 0; j <= n; j++)
         {
             var t = c * Math.pow(1 - i / segments, n - j) * Math.pow(i / segments, j);
-            x += t * points[j].x;
-            y += t * points[j].y;
+            x += t * this.points[j].x;
+            y += t * this.points[j].y;
             c = c * (n - j) / (j + 1);
         }
         this.path.push({
@@ -97,22 +86,22 @@ Slider.parseBezier = function(points, length) //TODO FIX LENGTH
         });
     }
 };
-Slider.parseCatmull = function(points, length) //TODO FIX LENGTH
+Slider.parseCatmull = function() //TODO FIX LENGTH
 {
     // https://github.com/pictuga/osu-web/blob/master/js/curves.js
     var segmentLength = 5,
-        segments = length / segmentLength | 0;
-    for (var i = 0, l = points.length - 1; i < l; i++)
+        segments = this.pixelLength / segmentLength | 0;
+    for (var i = 0, l = this.points.length - 1; i < l; i++)
     {
         for (var j = 1; j <= segments; j++)
         {
-            var p0 = points[i - (i >= 1)],
-                p1 = points[i],
-                p2 = i + 1 < points.length ? points[i + 1] : {
+            var p0 = this.points[i - (i >= 1)],
+                p1 = this.points[i],
+                p2 = i + 1 < l + 1 ? this.points[i + 1] : {
                     x: p1.x * 2 - p0.x,
                     y: p1.y * 2 - p0.y
                 },
-                p3 = i + 2 < points.length ? points[i + 2] : {
+                p3 = i + 2 < l + 2 ? this.points[i + 2] : {
                     x: p2.x * 2 - p1.x,
                     y: p2.y * 2 - p1.y
                 };
@@ -131,25 +120,25 @@ Slider.parseCatmull = function(points, length) //TODO FIX LENGTH
         }
     }
 };
-Slider.parsePeppy = function(points, length)
+Slider.parsePeppy = function()
 {
     // Circumscribed Circle
     var segmentLength = 10,
-        a = points[0].x - points[1].x, b = points[0].y - points[1].y,
-        c = points[1].x - points[2].x, d = points[1].y - points[2].y,
+        a = this.points[0].x - this.points[1].x, b = this.points[0].y - this.points[1].y,
+        c = this.points[1].x - this.points[2].x, d = this.points[1].y - this.points[2].y,
         q = (a * d - b * c) * 2,
-        l0 = points[0].x * points[0].x + points[0].y * points[0].y,
-        l1 = points[1].x * points[1].x + points[1].y * points[1].y,
-        l2 = points[2].x * points[2].x + points[2].y * points[2].y,
+        l0 = this.points[0].x * this.points[0].x + this.points[0].y * this.points[0].y,
+        l1 = this.points[1].x * this.points[1].x + this.points[1].y * this.points[1].y,
+        l2 = this.points[2].x * this.points[2].x + this.points[2].y * this.points[2].y,
         x = ((l0 - l1) * d + (l1 - l2) * -b) / q,
         y = ((l0 - l1) * -c + (l1 - l2) * a) / q,
-        dx = points[0].x - x,
-        dy = points[0].y - y,
+        dx = this.points[0].x - x,
+        dy = this.points[0].y - y,
         base = Math.atan2(dy, dx),
         r = Math.sqrt(dx * dx + dy * dy),
         p = a ? (a < 0) ^ (c * b / a < d) : (b > 0) ^ (c > 0), // if 2 over 01 ? t > 0 : t < 0
-        t = length / r * (p ? 1 : -1),
-        segments = length / segmentLength | 0;
+        t = this.pixelLength / r * (p ? 1 : -1),
+        segments = this.pixelLength / segmentLength | 0;
     for (var i = 1; i <= segments; i++)
     {
         this.path.push({
@@ -158,15 +147,15 @@ Slider.parsePeppy = function(points, length)
         });
     }
 };
-Slider.parseLinear = function(points, length)
+Slider.parseLinear = function()
 {
     var segments = 10,
-        t = Math.atan2(points[1].y - points[0].y, points[1].x - points[0].x);
+        t = Math.atan2(this.points[1].y - this.points[0].y, this.points[1].x - this.points[0].x);
     for (var i = 1; i <= segments; i++)
     {
         this.path.push({
-            x: points[0].x + Math.cos(t) * length * i / segments,
-            y: points[0].y + Math.sin(t) * length * i / segments
+            x: this.points[0].x + Math.cos(t) * this.pixelLength * i / segments,
+            y: this.points[0].y + Math.sin(t) * this.pixelLength * i / segments
         });
     }
 };

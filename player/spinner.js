@@ -1,28 +1,15 @@
 function Spinner(data)
 {
-    this.type = Spinner.id;
+    HitCircle.parseFlag.call(this);
 
-    this.endTime = this.time;
-
-    //if (this instanceof Spinner)
-    //{
-    //    this.parse(data);
-    //}
-    //else
-    //{
-    //    Spinner.prototype.parse.call(this, data);
-    //}
-    Spinner.parse.call(this, data);
+    this.endTime = data[0] / 1000;
 
     this.draw = Spinner.draw;
 }
 Spinner.id = 8;
-//Spinner.prototype = Object.create(HitObject.prototype);
+Standard.hitObjectTypes[Spinner.id] = Spinner;
+//Spinner.prototype = Object.create(HitCirle.prototype);
 //Spinner.prototype.constructor = Spinner;
-Spinner.parse = function(data)
-{
-    this.endTime = data[0] / 1000;
-};
 Spinner.draw = function(time)
 {
     var opacity = 1;

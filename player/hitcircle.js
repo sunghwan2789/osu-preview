@@ -1,12 +1,18 @@
 function HitCircle()
 {
-    this.type = HitCircle.id;
+    HitCircle.parseFlag.call(this);
 
     this.draw = HitCircle.draw;
 }
 HitCircle.id = 1;
+Standard.hitObjectTypes[HitCircle.id] = HitCircle;
 //HitCircle.prototype = Object.create(HitObject.prototype);
 //HitCircle.prototype.constructor = HitCircle;
+HitCircle.parseFlag = function()
+{
+    this.newCombo = this.flag & 4;
+    this.comboSkip = this.flag >> 4;
+};
 HitCircle.draw = function(time)
 {
     var opacity = 1;

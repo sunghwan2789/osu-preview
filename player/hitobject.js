@@ -1,19 +1,5 @@
 function HitObject(line)
 {
-    this.x = undefined;
-    this.y = undefined;
-    this.time = 0;
-    this.flag = undefined;
-    //this.sound = 0;
-
-    this.parse(line);
-}
-HitObject.prototype = {
-    type: undefined,
-    draw: undefined
-};
-HitObject.prototype.parse = function(line)
-{
     var data = line.split(',');
     if (data.length < 5)
     {
@@ -25,12 +11,13 @@ HitObject.prototype.parse = function(line)
     this.time = data[2] / 1000;
     this.flag = data[3] | 0;
 
-    this.getType().call(this, data.slice(5));
-};
-HitObject.prototype.getType = function()
-{
-    var type = this.flag & Player.beatmap.hitObjectTypeMask;
-    return Player.beatmap.hitObjectTypes.filter(function(i) {
-        return i.id === type;
-    })[0];
+    var type = Player.beatmap.hitObjectTypes[this.flag & Player.beatmap.hitObjectTypeMask];
+    if (typeof type !== 'undefined')
+    {
+        this.type = type;
+        this.type.call(this, data.slice(5));
+    }
+}
+HitObject.prototype = {
+    draw: undefined
 };

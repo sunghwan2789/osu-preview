@@ -1,6 +1,5 @@
 function HitNote()
 {
-    this.type = HitNote.id;
     this.column = 0;
 
     HitNote.parse.call(this);
@@ -8,6 +7,7 @@ function HitNote()
     this.draw = HitNote.draw;
 }
 HitNote.id = 1;
+Mania.hitObjectTypes[HitNote.id] = HitNote;
 //HitNote.prototype = Object.create(HitObject.prototype);
 //HitNote.prototype.constructor = HitNote;
 HitNote.parse = function()

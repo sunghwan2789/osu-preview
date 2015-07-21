@@ -1,6 +1,5 @@
 function HoldNote(data)
 {
-    this.type = HoldNote.id;
     this.column = 0;
 
     this.endTime = this.time;
@@ -18,6 +17,7 @@ function HoldNote(data)
     this.draw = HoldNote.draw;
 }
 HoldNote.id = 128;
+Mania.hitObjectTypes[HoldNote.id] = HoldNote;
 //HoldNote.prototype = Object.create(HitObject.prototype);
 //HoldNote.prototype.constructor = HoldNote;
 HoldNote.parse = function(data)

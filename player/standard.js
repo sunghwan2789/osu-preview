@@ -21,17 +21,13 @@ function Standard()
     this.processBG = Standard.processBG;
 }
 Standard.id = 0;
-Standard.hitObjectTypes = [
-    HitCircle,
-    Slider,
-    Spinner
-];
+Standard.hitObjectTypes = {};
 Beatmap.modes[Standard.id] = Standard;
 //Standard.prototype = Object.create(Beatmap.prototype);
 //Standard.prototype.costructor = Standard;
 Standard.processHitObject = function(hitObject)
 {
-    if (typeof this.current.color === 'undefined')
+    if (typeof this.current.combo === 'undefined')
     {
         if (this.Colors.length)
         {
@@ -42,27 +38,27 @@ Standard.processHitObject = function(hitObject)
             this.Colors = this.baseColors;
         }
         this.current.combo = 1;
-        this.current.color = -1;
-        this.current.colorChanged = 0;
+        this.current.comboIndex = -1;
+        this.current.setComboIndex = 1;
     }
-    if (hitObject.type == Spinner.id)
+    if (hitObject.type.id == Spinner.id)
     {
-        this.current.colorChanged = 0;
+        this.current.setComboIndex = 1;
     }
-    else if (hitObject.flag & 4 || !this.current.colorChanged)
+    else if (hitObject.newCombo || this.current.setComboIndex)
     {
         this.current.combo = 1;
-        this.current.color = (
-            (this.current.color + 1) + (hitObject.flag >> 4)
+        this.current.comboIndex = (
+            (this.current.comboIndex + 1) + hitObject.comboSkip
         ) % this.Colors.length;
-        this.current.colorChanged = 1;
+        this.current.setComboIndex = 0;
     }
     hitObject.combo = this.current.combo++;
-    hitObject.color = this.Colors[this.current.color];
+    hitObject.color = this.Colors[this.current.comboIndex];
 
     hitObject.x = this.basePosition.x + Player.getLength(hitObject.x);
     hitObject.y = this.basePosition.y + Player.getLength(hitObject.y);
-    if (hitObject.type === Slider.id)
+    if (hitObject.type.id === Slider.id)
     {
         for (var i = 1, l = hitObject.path.length; i < l; i++)
         {
