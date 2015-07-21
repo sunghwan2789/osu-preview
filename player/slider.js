@@ -49,7 +49,7 @@ Slider.parsePath = function()
         }
         case 'P':
         {
-            Slider.parsePeppy.call(this);
+            Slider.parsePassthrough.call(this);
             break;
         }
         case 'L':
@@ -120,7 +120,7 @@ Slider.parseCatmull = function() //TODO FIX LENGTH
         }
     }
 };
-Slider.parsePeppy = function()
+Slider.parsePassthrough = function()
 {
     // Circumscribed Circle
     var segmentLength = 10,
