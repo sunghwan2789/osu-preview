@@ -38,7 +38,7 @@ HoldNote.draw = function(time)
     Player.ctx.fill();
 
     Player.ctx.beginPath();
-    Player.ctx.rect(this.x, sy, Player.beatmap.columnWidth, Player.getLength(10));
+    Player.ctx.rect(this.x, sy, Player.beatmap.columnWidth, Player.getScaled(10));
     Player.ctx.fill();
     Player.ctx.strokeStyle = '#ccc';
     Player.ctx.lineWidth = 1;
@@ -46,7 +46,7 @@ HoldNote.draw = function(time)
 
 
     Player.ctx.beginPath();
-    Player.ctx.rect(this.x, ey, Player.beatmap.columnWidth, Player.getLength(10));
+    Player.ctx.rect(this.x, ey, Player.beatmap.columnWidth, Player.getScaled(10));
     Player.ctx.fill();
     Player.ctx.stroke();
 };

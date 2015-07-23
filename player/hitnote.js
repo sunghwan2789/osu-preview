@@ -21,11 +21,11 @@ HitNote.calcY = function(time, nTime)
     // Player.ctx.fillText(Player.beatmap.getTimingPoint(time).bpm, 0, 60);
     // nTime = nTime || this.time;
     // return Player.beatmap.basePosition.y -
-    //     Player.getLength(nTime - time) /
+    //     Player.getScaled(nTime - time) /
     //     (60 * 60 / Player.beatmap.getTimingPoint(nTime).bpm / Player.beatmap.getTimingPoint(time).bpm) *
     //     Player.beatmap.scrollVelocity;
     nTime = nTime || this.time;
-    return Player.beatmap.basePosition.y - Player.getLength(
+    return Player.beatmap.basePosition.y - Player.getScaled(
         (nTime - time) *
         (120 / 4) * // bpm based y calculation
         Player.beatmap.scrollVelocity);
@@ -33,7 +33,7 @@ HitNote.calcY = function(time, nTime)
 HitNote.draw = function(time)
 {
     Player.ctx.beginPath();
-    Player.ctx.rect(this.x, HitNote.calcY.call(this, time), Player.beatmap.columnWidth, Player.getLength(10));
+    Player.ctx.rect(this.x, HitNote.calcY.call(this, time), Player.beatmap.columnWidth, Player.getScaled(10));
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();
     Player.ctx.strokeStyle = '#ccc';

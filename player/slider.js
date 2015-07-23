@@ -1,26 +1,9 @@
 function Slider(data)
 {
-    HitCircle.parseFlag.call(this);
+    HitCircle.call(this);
 
-    this.sliderType = data[0][0];
-    this.points = Slider.getPoints.call(this, data[0]);
-    this.repeat = data[1] | 0;
-    this.pixelLength = +data[2];
-    var velocity = Player.beatmap.SliderMultiplier *
-            (100 / Player.beatmap.getTimingPoint(this.time).beatLength);
-    this.endTime = this.time + this.pixelLength / velocity * this.repeat / 1000;
-
-    Slider.parsePath.call(this);
-
-    this.draw = Slider.draw;
-}
-Slider.id = 2;
-Standard.hitObjectTypes[Slider.id] = Slider;
-//Slider.prototype = Object.create(HitCircle.prototype);
-//Slider.prototype.constructor = Slider;
-Slider.getPoints = function(data)
-{
-    var points = data.split('|');
+    var points = data[0].split('|');
+    this.sliderType = points[0];
     for (var i = 1, l = points.length; i < l; i++)
     {
         var point = points[i].split(':');
@@ -29,102 +12,48 @@ Slider.getPoints = function(data)
             y: point[1] | 0
         };
     }
-    points[0] = this;
-    return points;
-};
-Slider.parsePath = function()
-{
-    this.path = [ this ];
+    this.points = [ this ].concat(points.slice(1));
+    this.repeat = data[1] | 0;
+    this.pixelLength = +data[2];
+
+    var velocity = 100 / Player.beatmap.getTimingPoint(this.time).beatLength *
+            Player.beatmap.SliderMultiplier;
+    this.endTime += this.pixelLength / velocity * this.repeat / 1000;
+    this.duration = this.endTime - this.time;
+
     switch (this.sliderType)
     {
-        case 'B':
+        case 'P': // Passthrough
         {
-            Slider.parseBezier.call(this);
+            Slider.parseCircumscribedCircle.call(this);
             break;
         }
-        case 'C':
+        case 'C': // Catmull
         {
-            Slider.parseCatmull.call(this);
+            Slider.parseCatmullCurve.call(this);
             break;
         }
-        case 'P':
+        case 'B': // Bezier
+        case 'L': // Linear
         {
-            Slider.parsePassthrough.call(this);
-            break;
-        }
-        case 'L':
-        {
-            Slider.parseLinear.call(this);
+            Slider.parseLinearBezier.call(this, this.sliderType == 'L');
             break;
         }
     }
-    var EOP = this.path.slice(-1)[0];
-    this.endX = EOP.x;
-    this.endY = EOP.y;
-};
-Slider.parseBezier = function() //TODO FIX LENGTH
+    var end = this.path.slice(-1)[0];
+    this.endX = end.x;
+    this.endY = end.y;
+
+    this.draw = Slider.draw;
+}
+Slider.id = 2;
+Standard.hitObjectTypes[Slider.id] = Slider;
+//Slider.prototype = Object.create(HitCircle.prototype);
+//Slider.prototype.constructor = Slider;
+Slider.SEGMENT_LENGTH = 5;
+Slider.parseCircumscribedCircle = function()
 {
-    // https://github.com/pictuga/osu-web/blob/master/js/curves.js
-    var segmentLength = 5,
-        n = this.points.length - 1,
-        segments = this.pixelLength / segmentLength | 0;
-    for (var i = 1; i <= segments; i++)
-    {
-        var c = 1,
-            x = 0,
-            y = 0;
-        for (var j = 0; j <= n; j++)
-        {
-            var t = c * Math.pow(1 - i / segments, n - j) * Math.pow(i / segments, j);
-            x += t * this.points[j].x;
-            y += t * this.points[j].y;
-            c = c * (n - j) / (j + 1);
-        }
-        this.path.push({
-            x: x,
-            y: y
-        });
-    }
-};
-Slider.parseCatmull = function() //TODO FIX LENGTH
-{
-    // https://github.com/pictuga/osu-web/blob/master/js/curves.js
-    var segmentLength = 5,
-        segments = this.pixelLength / segmentLength | 0;
-    for (var i = 0, l = this.points.length - 1; i < l; i++)
-    {
-        for (var j = 1; j <= segments; j++)
-        {
-            var p0 = this.points[i - (i >= 1)],
-                p1 = this.points[i],
-                p2 = i + 1 < l + 1 ? this.points[i + 1] : {
-                    x: p1.x * 2 - p0.x,
-                    y: p1.y * 2 - p0.y
-                },
-                p3 = i + 2 < l + 2 ? this.points[i + 2] : {
-                    x: p2.x * 2 - p1.x,
-                    y: p2.y * 2 - p1.y
-                };
-            this.path.push({
-                x: 0.5 * (
-                    (   -p0.x + p1.x * 3 - p2.x * 3 + p3.x) * Math.pow(j / segments, 3) +
-                    (p0.x * 2 - p1.x * 5 + p2.x * 4 - p3.x) * Math.pow(j / segments, 2) +
-                    (   -p0.x            + p2.x) * j / segments +
-                    p1.x * 2),
-                y: 0.5 * (
-                    (   -p0.y + p1.y * 3 - p2.y * 3 + p3.y) * Math.pow(j / segments, 3) +
-                    (p0.y * 2 - p1.y * 5 + p2.y * 4 - p3.y) * Math.pow(j / segments, 2) +
-                    (   -p0.y            + p2.y) * j / segments +
-                    p1.y * 2)
-            });
-        }
-    }
-};
-Slider.parsePassthrough = function()
-{
-    // Circumscribed Circle
-    var segmentLength = 10,
-        a = this.points[0].x - this.points[1].x, b = this.points[0].y - this.points[1].y,
+    var a = this.points[0].x - this.points[1].x, b = this.points[0].y - this.points[1].y,
         c = this.points[1].x - this.points[2].x, d = this.points[1].y - this.points[2].y,
         q = (a * d - b * c) * 2,
         l0 = this.points[0].x * this.points[0].x + this.points[0].y * this.points[0].y,
@@ -134,138 +63,380 @@ Slider.parsePassthrough = function()
         y = ((l0 - l1) * -c + (l1 - l2) * a) / q,
         dx = this.points[0].x - x,
         dy = this.points[0].y - y,
-        base = Math.atan2(dy, dx),
         r = Math.sqrt(dx * dx + dy * dy),
-        p = a ? (a < 0) ^ (c * b / a < d) : (b > 0) ^ (c > 0), // if 2 over 01 ? t > 0 : t < 0
-        t = this.pixelLength / r * (p ? 1 : -1),
-        segments = this.pixelLength / segmentLength | 0;
-    for (var i = 1; i <= segments; i++)
+        base = Math.atan2(dy, dx),
+        p = a ? (a < 0) ^ (c * b / a < d) : (b > 0) ^ (c > 0), // if l2 over l0l1 ? t > 0 : t < 0
+        t = this.pixelLength / r * (p ? 1 : -1);
+    this.circle = {
+        x: x,
+        y: y,
+        radius: r
+    };
+    this.angle = {
+        base: base,
+        delta: t
+    };
+    this.pointAt = function(t)
     {
-        this.path.push({
-            x: x + Math.cos(base + t * i / segments) * r,
-            y: y + Math.sin(base + t * i / segments) * r
-        });
+        var angle = this.angle.base + this.angle.delta * t;
+        return {
+            x: this.circle.x + Math.cos(angle) * this.circle.radius,
+            y: this.circle.y + Math.sin(angle) * this.circle.radius
+        };
+    };
+
+    var segments = this.pixelLength / Slider.SEGMENT_LENGTH | 0;
+    this.path = [];
+    for (var i = 0; i <= segments; i++)
+    {
+        this.path[i] = this.pointAt(i / segments);
     }
+
+    var p1 = this.path[0],
+        p2 = this.path[1];
+    this.startAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+
+    p1 = this.path[segments];
+    p2 = this.path[segments - 1];
+    this.endAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) + Math.PI;
 };
-Slider.parseLinear = function()
+Slider.parseCatmullCurve = function()
 {
-    var segments = 10,
-        t = Math.atan2(this.points[1].y - this.points[0].y, this.points[1].x - this.points[0].x);
-    for (var i = 1; i <= segments; i++)
+    // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/CatmullCurve.java
+    var catmulls = [],
+        points = [];
+    if (this.points[0].x != this.points[1].x || this.points[0].y != this.points[1].y)
     {
-        this.path.push({
-            x: this.points[0].x + Math.cos(t) * this.pixelLength * i / segments,
-            y: this.points[0].y + Math.sin(t) * this.pixelLength * i / segments
-        });
+        points.push(this.points[0]);
     }
+    for (var i = 0, l = this.points.length; i < l; i++)
+    {
+        points.push(this.points[i]);
+        if (points.length == 4)
+        {
+            catmulls.add(new CentripetalCatmullRom(points));
+            points.shift();
+        }
+    }
+    var point2 = this.points.slice(-2);
+    if (point2[0].x != point2[1].x || point2[0].y != point2[1].y)
+    {
+        points.push(this.points.slice(-1));
+    }
+    if (points.length == 4)
+    {
+        catmulls.add(new CentripetalCatmullRom(points));
+    }
+    Slider.parseEqualDistanceMultiCurve.call(this, catmulls);
 };
+function CentripetalCatmullRom(points)
+{
+    // needs 4 points
+    this.points = points;
+    var approxLength = 0;
+    for (var i = 1; i < 4; i++)
+    {
+        var dx = this.points[i].x - this.points[i - 1].x,
+            dy = this.points[i].y - this.points[i - 1].y,
+            len = Math.sqrt(dx * dx + dy * dy);
+        approxLength += len;
+    }
+    CurveType.call(this, approxLength / 2);
+}
+CentripetalCatmullRom.prototype.pointAt = function(t, p)
+{
+    if (typeof p !== 'undefined')
+    {
+        var A1 = this.points[0][p] * (2 - t) + this.points[1][p] * (t - 1),
+            A2 = this.points[1][p] * (3 - t) + this.points[2][p] * (t - 2),
+            A3 = this.points[2][p] * (4 - t) + this.points[3][p] * (t - 3),
+            B1 = (A1 * (3 - t) + A2 * (t - 1)) / 2,
+            B2 = (A2 * (4 - t) + A3 * (t - 2)) / 2,
+            C = B1 * (3 - t) + B2 * (t - 2);
+        return C;
+    }
+    return {
+        x: this.pointAt(t, 'x'),
+        y: this.pointAt(t, 'y')
+    };
+};
+Slider.parseLinearBezier = function(line)
+{
+    // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/LinearBezier.java
+    var beziers = [],
+        points = [],
+        last = undefined;
+    for (var i = 0, l = this.points.length; i < l; i++)
+    {
+        var point = this.points[i];
+        if (line)
+        {
+            if (typeof last !== 'undefined')
+            {
+                points.push(point);
+                beziers.push(new Bezier2(points));
+                points = [];
+            }
+        }
+        else if (typeof last !== 'undefined' &&
+            point.x == last.x && point.y == last.y)
+        {
+            if (points.length >= 2)
+            {
+                beziers.push(new Bezier2(points));
+            }
+            points = [];
+        }
+        points.push(point);
+        last = point;
+    }
+    if (!line && points.length >= 2)
+    {
+        beziers.push(new Bezier2(points));
+    }
+    Slider.parseEqualDistanceMultiCurve(this, beziers);
+};
+function Bezier2(points)
+{
+    this.points = points;
+    var approxLength = 0;
+    for (var i = 1, l = this.points.length; i < l; i++)
+    {
+        var dx = this.points[i].x - this.points[i - 1].x,
+            dy = this.points[i].y - this.points[i - 1].y,
+            len = Math.sqrt(dx * dx + dy * dy);
+        approxLength += len;
+    }
+    CurveType.call(this, approxLength);
+}
+Bezier2.prototype.pointAt = function(t)
+{
+    var n = this.points.length - 1,
+        x = 0,
+        y = 0,
+        combination = 1;
+    for (var i = 0; i <= n; i++)
+    {
+        var bernstein = combination * Math.pow(t, i) * Math.pow(1 - t, n - i);
+        x += this.points[i].x * bernstein;
+        y += this.points[i].y * bernstein;
+        combination = combination * (n - i) / (i + 1);
+    }
+    return {
+        x: x,
+        y: y
+    };
+};
+function CurveType(approxLength)
+{
+    this.pathLength = (approxLength / 4 | 0) + 2;
+    this.path = [];
+    for (var i = 0; i < this.pathLength; i++)
+    {
+        this.path[i] = this.pointAt(i / (this.pathLength - 1));
+    }
+
+    this.pathDistance = [ 0 ];
+    this.totalDistance = 0;
+    for (var i = 1; i < this.pathLength; i++)
+    {
+        var dx = this.path[i].x - this.path[i - 1].x,
+            dy = this.path[i].y - this.path[i - 1].y,
+            len = Math.sqrt(dx * dx + dy * dy);
+        this.pathDistance[i] = len;
+        this.totalDistance += len;
+    }
+}
+Slider.parseEqualDistanceMultiCurve = function(curves)
+{
+    this.segments = this.pixelLength / Slider.SEGMENT_LENGTH | 0;
+    this.path = [];
+
+    var distanceAt = 0,
+        curveIndex = 0,
+        curCurve = curves[curveIndex],
+        curPoint = 0,
+        lastCurve = curCurve.path[0],
+        lastDistanceAt = 0;
+    // for each distance, try to get in between the two points that are between it
+    for (var i = 0; i < this.segments + 1; i++)
+    {
+        var prefDistance = i * this.pixelLength / this.segments | 0;
+        while (distanceAt < prefDistance)
+        {
+            lastDistanceAt = distanceAt;
+            lastCurve = curCurve.path[curPoint];
+
+            if (++curPoint >= curCurve.path.length)
+            {
+                if (curveIndex + 1 < curves.length)
+                {
+                    curCurve = curves[++curveIndex];
+                    curPoint = 0;
+                }
+                else
+                {
+                    curPoint = curCurve.path.length - 1;
+                    if (lastDistanceAt == distanceAt)
+                    {
+                        // out of points even though the preferred distance hasn't been reached
+                        break;
+                    }
+                }
+            }
+            distanceAt += curCurve.pathDistance[curPoint];
+        }
+        var thisCurve = curCurve.path[curPoint];
+
+        // interpolate the point between the two closest distances
+        if (distanceAt - lastDistanceAt > 1)
+        {
+            var t = (prefDistance - lastDistanceAt) / (distanceAt - lastDistanceAt);
+            this.path[i] = {
+                x: lastCurve.x + (thisCurve.x - lastCurve.x) * t,
+                y: lastCurve.y + (thisCurve.y - lastCurve.y) * t
+            };
+        }
+        else
+        {
+            this.path[i] = thisCurve;
+        }
+    }
+    this.pointAt = function(t)
+    {
+        var indexF = t * this.segments,
+            index = indexF | 0;
+        if (index >= this.segments)
+        {
+            return this.path[this.segments];
+        }
+        else
+        {
+            var p1 = this.path[index],
+                p2 = this.path[index + 1],
+                t2 = indexF - index;
+            return {
+                x: p1.x + (p2.x - p1.x) * t2,
+                y: p1.y + (p2.y - p1.y) * t2
+            };
+        }
+    };
+
+    var p1 = this.path[0],
+        cnt = 1,
+        p2 = this.path[cnt++];
+    while (cnt <= this.path.length)
+    {
+        var dx = p2.x - p1.x,
+            dy = p2.y - p2.y,
+            len = Math.sqrt(dx * dx + dy * dy);
+        if (len >= 1)
+        {
+            break;
+        }
+        p2 = this.path[cnt++];
+    }
+    this.startAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+
+    p1 = this.path[this.segments];
+    cnt = this.segments - 1;
+    p2 = this.path[cnt--];
+    while (cnt >= 0)
+    {
+        var dx = p2.x - p1.x,
+            dy = p2.y - p2.y,
+            len = Math.sqrt(dx * dx + dy * dy);
+        if (len >= 1)
+        {
+            break;
+        }
+        p2 = this.path[cnt--];
+    }
+    this.endAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) + Math.PI;
+};
+Slider.FADE_IN_TIME = 0.375;
+Slider.FADE_OUT_TIME = 0.2;
+Slider.REVERSE_ARROW = String.fromCharCode(10132);
+Slider.OPACITY = 0.66;
 Slider.draw = function(time)
 {
-    var opacity = 1;
-    if (time < this.time)
+    var dt = this.time - time,
+        opacity = 1;
+    if (dt >= 0)
     {
-        opacity = (Player.beatmap.approachTime - (this.time - time)) / 0.4;
+        opacity = (Player.beatmap.approachTime - dt) / Slider.FADE_IN_TIME;
     }
     else if (time > this.endTime)
     {
-        opacity = 1 - (time - this.endTime) / 0.2;
+        opacity = 1 - (time - this.endTime) / Slider.FADE_OUT_TIME;
     }
     Player.ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
-    Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
-    // path
+
+    Slider.drawPath.call(this);
+    // EndHitCircle
+    var repeat = -dt * this.repeat / this.duration;
+    if (this.repeat > 1 && repeat <= this.repeat - 1 - this.repeat % 2)
+    {
+        HitCircle.drawCircle.call(this, this.endX, this.endY, Slider.REVERSE_ARROW, this.endAngle);
+    }
+    else
+    {
+        HitCircle.drawCircle.call(this, this.endX, this.endY, '');
+    }
+    // HitCircle
+    if (repeat > 0 &&
+        repeat <= this.repeat - 1 - (this.repeat + 1) % 2)
+    {
+        HitCircle.drawCircle.call(this, this.x, this.y, Slider.REVERSE_ARROW, this.startAngle);
+    }
+    else
+    {
+        HitCircle.drawCircle.call(this, this.x, this.y, repeat > 0 ? '' : this.combo);
+    }
+    if (dt >= 0)
+    {
+        HitCircle.drawApproach.call(this, dt);
+    }
+    else if (time < this.endTime)
+    {
+        Slider.drawFollowCircle.call(this, repeat);
+    }
+};
+Slider.drawPath = function()
+{
+    Player.ctx.save();
+    // Slider
+    Player.ctx.globalAlpha *= Slider.OPACITY;
     Player.ctx.beginPath();
     Player.ctx.moveTo(this.x, this.y);
     for (var i = 1, l = this.path.length; i < l; i++)
     {
         Player.ctx.lineTo(this.path[i].x, this.path[i].y);
     }
-    Player.ctx.strokeStyle = '#fff';
-    Player.ctx.lineWidth = Player.beatmap.circleRadius * 2;
-    Player.ctx.stroke();
+    Player.ctx.shadowBlur = 0;
     Player.ctx.strokeStyle = this.color;
     Player.ctx.lineWidth = (Player.beatmap.circleRadius - Player.beatmap.circleBorder) * 2;
     Player.ctx.stroke();
-    // endHitcircle
-    Player.ctx.beginPath();
-    Player.ctx.arc(this.endX, this.endY, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
-    Player.ctx.fillStyle = this.color;
-    Player.ctx.fill();
+    // Border
+    Player.ctx.globalCompositeOperation = 'destination-over';
+    Player.ctx.shadowBlur = 0;
     Player.ctx.strokeStyle = '#fff';
-    Player.ctx.lineWidth = Player.beatmap.circleBorder;
+    Player.ctx.lineWidth = Player.beatmap.circleRadius * 2;
     Player.ctx.stroke();
-    // hitcircle
-    Player.ctx.beginPath();
-    Player.ctx.arc(this.x, this.y, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
-    Player.ctx.fillStyle = this.color;
-    Player.ctx.fill();
-    Player.ctx.strokeStyle = '#fff';
-    Player.ctx.lineWidth = Player.beatmap.circleBorder;
-    Player.ctx.stroke();
-    // combo
-    Player.ctx.fillStyle = '#fff';
-    var repeat = (time - this.time) * this.repeat / (this.endTime - this.time);
-    if (this.repeat > 1 && repeat <= this.repeat - (this.repeat % 2 ? 2 : 1))
-    {
-        var preEOP = this.path.slice(-2)[0];
-        Player.ctx.save();
-        Player.ctx.translate(this.endX, this.endY);
-        Player.ctx.rotate(Math.PI + Math.atan2(this.endY - preEOP.y, this.endX - preEOP.x));
-        Player.ctx.fillText(String.fromCharCode(10132), 0, 0);
-        Player.ctx.restore();
-    }
-    if (repeat > 0)
-    {
-        if (repeat <= this.repeat - ((this.repeat + 1) % 2 ? 2 : 1))
-        {
-            var posSOP = this.path[1];
-            Player.ctx.save();
-            Player.ctx.translate(this.x, this.y);
-            Player.ctx.rotate(Math.atan2(posSOP.y - this.y, posSOP.x - this.x));
-            Player.ctx.fillText(String.fromCharCode(10132), 0, 0);
-            Player.ctx.restore();
-        }
-    }
-    else
-    {
-        Player.ctx.fillText(this.combo, this.x, this.y);
-    }
-    // approach
-    if (time <= this.time)
-    {
-        var dtp = 1 - (this.time - time) / Player.beatmap.approachTime;
-        Player.ctx.beginPath();
-        Player.ctx.arc(this.x, this.y, Player.beatmap.circleRadius * (4 - 3 * dtp) - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
-        Player.ctx.strokeStyle = this.color;
-        Player.ctx.lineWidth = Player.beatmap.circleBorder / 2 * (2 - dtp);
-        Player.ctx.stroke();
-    }
-    // slider followHitCircle
-    // http://sc-wu.com/p/Wosu/
-    if (time >= this.time && time <= this.endTime)
-    {
-        repeat %= 2;
-        if (repeat > 1)
-        {
-            repeat = 2 - repeat;
-        }
-        var l = this.path.length,
-            a = l * repeat | 0,
-            b = a + 1,
-            t = l * repeat - a;
-        if (a >= l)
-        {
-            a = l - 1;
-        }
-        if (b >= l)
-        {
-            b = l - 1;
-        }
-        Player.ctx.beginPath();
-        Player.ctx.arc(
-            this.path[a].x * (1 - t) + this.path[b].x * t,
-            this.path[a].y * (1 - t) + this.path[b].y * t,
-            Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
-        Player.ctx.strokeStyle = '#fff';
-        Player.ctx.stroke();
-    }
+    Player.ctx.restore();
 };
+Slider.drawFollowCircle = function(repeat)
+{
+    repeat %= 2;
+    if (repeat > 1)
+    {
+        repeat = 2 - repeat;
+    }
+    var point = this.pointAt(repeat);
+    Player.ctx.beginPath();
+    Player.ctx.arc(point.x, point.y, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
+    Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
+    Player.ctx.strokeStyle = '#fff';
+    Player.ctx.lineWidth = Player.beatmap.circleBorder;
+    Player.ctx.stroke();
+}

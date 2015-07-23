@@ -1,29 +1,27 @@
 function Beatmap(osu)
 {
-    // v20150721
-    // support standard, ~~mania~~
-    // compatible through osu file format v14
-    // osu! has no default colorset now: #ffffff
+    // for temporary vars that need for drawing
     this.current = {};
 
     // [General]
     this.Mode = 0;
+    this.StackLeniency = 0.7;
+    this.WidescreenStoryboard = 0;
 
     // [Metadata]
-    this.Title = undefined;
+    this.Title = '';
     this.TitleUnicode = undefined;
-    this.Artist = undefined;
+    this.Artist = '';
     this.ArtistUnicode = undefined;
-    this.Creator = undefined;
+    this.Creator = '';
     this.Version = 'Normal';
 
     // [Difficulty]
     this.HPDrainRate = 5;
-    this.CircleSize = 5;
+    this.CircleSize = 4;
     this.OverallDifficulty = 5;
     this.ApproachRate = undefined;
-    this.SliderMultiplier = 1.4;
-    this.SliderTickRate = 1;
+    this.SliderMultiplier = 1;
 
     // [TimingPoints]
     this.TimingPoints = [];
@@ -42,9 +40,10 @@ Beatmap.prototype = {
     draw: undefined,
     processBG: undefined
 };
+Beatmap.MAX_X = 512;
+Beatmap.MAX_Y = 384;
 Beatmap.prototype.parse = function(osu)
 {
-    // https://github.com/smoogipooo/osu-BMAPI/blob/master/v1/Beatmap.cs
     if (!/^osu/.test(osu))
     {
         throw 'target is not a beatmap file';

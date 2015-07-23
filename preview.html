@@ -141,7 +141,7 @@ body {
 <body class="h">
     <div id="container"><canvas width="1024" height="768"></canvas></div>
     <button id="play"></button>
-    <div id="speed"><button value="1.5">DT</button><button class="e" value="1">-</button><button value="0.5">HT</button></div>
+    <div id="speed"><button value="1.5">DT</button><button class="e" value="1">-</button><button value="0.75">HT</button></div>
     <div id="control"><input id="progress" type="range" min="0" max="0" value="0"><input id="volume" type="range" min="0" max="100" value="100"><button id="fullscreen">&#128187;</button></div>
     <div id="title"><img src="/_data/BloodCat.svg" width="20" height="30" alt="아까네코 종이모형"><a href="//osu.ppy.sh/b/" target="_blank">-</a><button id="share">&#10168;</button></div>
 
@@ -178,6 +178,9 @@ Player.title = $('#title');
 
 Player.loadBeatmap = function(id)
 {
+    Player.ctx.restore();
+    Player.ctx.save();
+
     Player.beatmap = undefined;
     $(Player.audio).trigger('pause')[0].pause();
     Player.button.removeClass('e');
@@ -226,7 +229,7 @@ Player.toggle = 3000;
 Player.w = Player.width();
 Player.h = Player.height();
 Player.scale = Player.w / 640;
-Player.getLength = function(l)
+Player.getScaled = function(l)
 {
     return l * Player.scale;
 };
