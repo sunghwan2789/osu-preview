@@ -29,20 +29,15 @@ HitCircle.draw = function(time)
     }
     Player.ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
 
-    HitCircle.drawCircle.call(this);
+    HitCircle.drawCircle.call(this, this.x, this.y);
+    HitCircle.drawText.call(this, this.x, this.y, this.combo);
     if (dt >= 0)
     {
         HitCircle.drawApproach.call(this, dt);
     }
 };
-HitCircle.drawCircle = function(x, y, text, deg)
+HitCircle.drawCircle = function(x, y)
 {
-    x = x || this.x;
-    y = y || this.y;
-    if (typeof text === 'undefined')
-    {
-        text = this.combo;
-    }
     // HitCircle
     Player.ctx.beginPath();
     Player.ctx.arc(x, y, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
@@ -54,7 +49,9 @@ HitCircle.drawCircle = function(x, y, text, deg)
     Player.ctx.strokeStyle = '#fff';
     Player.ctx.lineWidth = Player.beatmap.circleBorder;
     Player.ctx.stroke();
-    // Text
+};
+HitCircle.drawText = function(x, y, text, deg)
+{
     Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
     Player.ctx.fillStyle = '#fff';
     Player.ctx.save();

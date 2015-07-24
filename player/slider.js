@@ -334,26 +334,24 @@ Slider.draw = function(time)
     Player.ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
 
     Slider.drawPath.call(this);
-    // EndHitCircle
+    HitCircle.drawCircle.call(this, this.endX, this.endY);
+    HitCircle.drawCircle.call(this, this.x, this.y);
+
     var repeat = -dt * this.repeat / this.duration;
     if (this.repeat > 1 && repeat <= this.repeat - 1 - this.repeat % 2)
     {
-        HitCircle.drawCircle.call(this, this.endX, this.endY, Slider.REVERSE_ARROW, this.endAngle);
+        HitCircle.drawText(this.endX, this.endY, Slider.REVERSE_ARROW, this.endAngle);
     }
-    else
-    {
-        HitCircle.drawCircle.call(this, this.endX, this.endY, '');
-    }
-    // HitCircle
     if (repeat > 0 &&
         repeat <= this.repeat - 1 - (this.repeat + 1) % 2)
     {
-        HitCircle.drawCircle.call(this, this.x, this.y, Slider.REVERSE_ARROW, this.startAngle);
+        HitCircle.drawText.call(this, this.x, this.y, Slider.REVERSE_ARROW, this.startAngle);
     }
-    else
+    else if (dt >= 0)
     {
-        HitCircle.drawCircle.call(this, this.x, this.y, repeat > 0 ? '' : this.combo);
+        HitCircle.drawText.call(this, this.x, this.y, this.combo);
     }
+
     if (dt >= 0)
     {
         HitCircle.drawApproach.call(this, dt);
@@ -393,7 +391,7 @@ Slider.drawFollowCircle = function(repeat)
     {
         repeat = 2 - repeat;
     }
-    var point = this.pointAt(repeat, 1);
+    var point = this.pointAt(repeat);
     Player.ctx.beginPath();
     Player.ctx.arc(point.x, point.y, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
     Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
