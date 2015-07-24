@@ -139,7 +139,7 @@ body {
     </style>
     <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-21956094-2','bloodcat.com');ga('send','pageview');</script>
 <body class="h">
-    <div id="container"><canvas width="1024" height="768"></canvas></div>
+    <div id="container"><canvas width="640" height="480"></canvas></div>
     <button id="play"></button>
     <div id="speed"><button value="1.5">DT</button><button class="e" value="1">-</button><button value="0.75">HT</button></div>
     <div id="control"><input id="progress" type="range" min="0" max="0" value="0"><input id="volume" type="range" min="0" max="100" value="100"><button id="fullscreen">&#128187;</button></div>
@@ -217,7 +217,10 @@ Player.loadBeatmap = function(id)
 };
 Player.play = function()
 {
-    Player.ctx.clearRect(0, 0, Player.w, Player.h);
+    Player.ctx.save();
+    Player.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    Player.ctx.clearRect(0, 0, Player.width(), Player.height());
+    Player.ctx.restore();
     Player.beatmap.draw(Player.audio.currentTime);
     if (!Player.audio.paused)
     {
@@ -226,13 +229,6 @@ Player.play = function()
 };
 
 Player.toggle = 3000;
-Player.w = Player.width();
-Player.h = Player.height();
-Player.scale = Player.w / 640;
-Player.getScaled = function(l)
-{
-    return l * Player.scale;
-};
 
 
 $(window).on('resize', function() {
@@ -240,12 +236,12 @@ $(window).on('resize', function() {
         h = this.innerHeight;
     if (w * 3 > h * 4)
     {
-        Player.css('transform', 'scale(' + h / Player.h + ')')
+        Player.css('transform', 'scale(' + h / Player.height() + ')')
               .container.width(h / 3 * 4).height(h);
     }
     else
     {
-        Player.css('transform', 'scale(' + w / Player.w + ')')
+        Player.css('transform', 'scale(' + w / Player.width() + ')')
               .container.width(w).height(w / 4 * 3);
     }
 }).trigger('resize').on('hashchange', function() {
@@ -321,7 +317,7 @@ $('#share').on('click', function(e) {
     canvas.height = 480;
     var ctx = canvas.getContext('2d');
     ctx.drawImage(Player.background, 0, 0, Player.background.width, Player.background.height, 0, 0, canvas.width, canvas.height);
-    ctx.drawImage(Player[0], 0, 0, Player.w, Player.h, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(Player[0], 0, 0, Player.width(), Player.height(), 0, 0, canvas.width, canvas.height);
     var logo = document.querySelector('img');
     ctx.fillRect(0, 0, canvas.width, 40);
     ctx.drawImage(logo, 0, 0, logo.clientWidth, logo.clientHeight, 10, 5, logo.clientWidth, logo.clientHeight);
@@ -361,7 +357,6 @@ $('#share').on('click', function(e) {
         .replace(/\$3/g, canvas.toDataURL('image/jpeg', 0.6)))
     .prepend($('<button>').html('&#10005;').on('click', function() {$('#sharePrompt').hide()}))
     .show();
-    canvas.remove();
 });
 $('#fullscreen').on('click', function(e) {
     e.preventDefault();

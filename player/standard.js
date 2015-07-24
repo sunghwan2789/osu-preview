@@ -62,14 +62,6 @@ Standard.STACK_OFFSET_MODIFIER = 0.05;
 Standard.calcStacks = function()
 {
     // https://gist.github.com/peppy/1167470
-    if (typeof this.offset !== 'undefined')
-    {
-        return;
-    }
-    this.offset = {
-        x: (Player.w - Player.getScaled(Beatmap.MAX_X)) / 2,
-        y: (Player.h - Player.getScaled(Beatmap.MAX_Y)) / 2
-    };
     for (var i = this.HitObjects.length - 1; i > 0; i--)
     {
         var hitObject = this.HitObjects[i];
@@ -92,8 +84,8 @@ Standard.calcStacks = function()
                 break;
             }
 
-            var dx = hitObject.x - hitObjectN.endX,
-                dy = hitObject.y - hitObjectN.endY,
+            var dx = hitObject.x - (hitObjectN.endX || hitObjectN.x),
+                dy = hitObject.y - (hitObjectN.endY || hitObjectN.y),
                 l = Math.sqrt(dx * dx + dy * dy);
             if (hitObjectN.type.id == Slider.id &&
                 l < Standard.STACK_LENIENCE)
@@ -102,8 +94,8 @@ Standard.calcStacks = function()
                 for (var j = n + 1; j <= i; j++)
                 {
                     var hitObjectJ = this.HitObjects[j];
-                    dx = hitObjectJ.x - hitObjectN.endX;
-                    dy = hitObjectJ.y - hitObjectN.endY;
+                    dx = hitObjectJ.x - (hitObjectN.endX || hitObjectN.x);
+                    dy = hitObjectJ.y - (hitObjectN.endY || hitObjectN.y);
                     l = Math.sqrt(dx * dx + dy * dy);
                     if (l < Standard.STACK_LENIENCE)
                     {
@@ -120,40 +112,14 @@ Standard.calcStacks = function()
             }
         }
     }
-    for (var i = 0, l = this.HitObjects.length; i < l; i++)
-    {
-        var hitObject = this.HitObjects[i];
-        hitObject.x = Standard.getX.call(this, hitObject.x, hitObject.stack);
-        hitObject.y = Standard.getY.call(this, hitObject.y, hitObject.stack);
-        if (hitObject.type.id == Slider.id)
-        {
-            for (var j = 1, k = hitObject.path.length; j < k; j++)
-            {
-                var path = hitObject.path[j];
-                path.x = Standard.getX.call(this, path.x, hitObject.stack);
-                path.y = Standard.getY.call(this, path.y, hitObject.stack);
-            }
-            hitObject.endX = Standard.getX.call(this, hitObject.endX, hitObject.stack);
-            hitObject.endY = Standard.getY.call(this, hitObject.endY, hitObject.stack);
-        }
-    }
-};
-Standard.getX = function(x, stack)
-{
-    return Player.getScaled(x - stack * this.stackOffset) + this.offset.x;
-};
-Standard.getY = function(y, stack)
-{
-    return Player.getScaled(y - stack * this.stackOffset) + this.offset.y;
 };
 Standard.draw = function(time)
 {
-    if (typeof this.current.first === 'undefined')
+    if (typeof this.init === 'undefined')
     {
         Standard.calcStacks.call(this);
-        this.current.first = 0;
-        this.current.last = -1;
-        this.circleRadius = Player.getScaled(this.circleDiameter / 2);
+
+        this.circleRadius = this.circleDiameter / 2;
         this.circleBorder = this.circleRadius / 8;
         this.shadowBlur = this.circleRadius / 15;
         Player.ctx.shadowColor = '#666';
@@ -162,6 +128,14 @@ Standard.draw = function(time)
         Player.ctx.font = this.circleRadius + 'px "Comic Sans MS", cursive, sans-serif';
         Player.ctx.textAlign = 'center';
         Player.ctx.textBaseline = 'middle';
+        Player.ctx.translate((Beatmap.WIDTH - Beatmap.MAX_X) / 2, (Beatmap.HEIGHT - Beatmap.MAX_Y) / 2);
+
+        this.init = 1;
+    }
+    if (typeof this.current.first === 'undefined')
+    {
+        this.current.first = 0;
+        this.current.last = -1;
     }
     while (this.current.last + 1 < this.HitObjects.length &&
         time >= this.HitObjects[this.current.last + 1].time - this.approachTime)

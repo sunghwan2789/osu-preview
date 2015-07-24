@@ -4,11 +4,11 @@ function Mania()
     this.processHitObject = Mania.processHitObject;
 
     this.keyCount = this.CircleSize;
-    this.columnSize = 512 / this.keyCount;
-    this.columnWidth = Player.getScaled(30);
+    this.columnSize = Beatmap.MAX_X / this.keyCount;
+    this.columnWidth = 30;
     this.basePosition = {
-        x: Player.getScaled(130),
-        y: Player.getScaled(403)
+        x: 130,
+        y: 403
     };
     this.baseColors = [
         '#5bf',
@@ -99,7 +99,7 @@ Mania.draw = function(time)
 };
 Mania.processBG = function(ctx)
 {
-    var ey = Player.getScaled(480);
+    var ey = Beatmap.HEIGHT;
 
     ctx.beginPath();
     ctx.rect(this.basePosition.x, 0, this.columnWidth * this.keyCount, ey);
@@ -137,7 +137,7 @@ Mania.processBG = function(ctx)
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.rect(this.basePosition.x, this.basePosition.y, this.columnWidth * this.keyCount, Player.getScaled(10));
+    ctx.rect(this.basePosition.x, this.basePosition.y, this.columnWidth * this.keyCount, 10);
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.stroke();

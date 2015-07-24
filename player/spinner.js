@@ -31,15 +31,15 @@ Spinner.draw = function(time)
     Player.ctx.save();
     // Spinner
     Player.ctx.beginPath();
-    Player.ctx.arc(this.x, this.y, Player.getScaled(Spinner.RADIUS - Spinner.BORDER_WIDTH / 2), -Math.PI, Math.PI);
+    Player.ctx.arc(this.x, this.y, Spinner.RADIUS - Spinner.BORDER_WIDTH / 2, -Math.PI, Math.PI);
     Player.ctx.globalCompositeOperation = 'destination-over';
     Player.ctx.shadowBlur = 0;
     Player.ctx.fillStyle = 'rgba(0,0,0,.4)';
     Player.ctx.fill();
     // Border
-    Player.ctx.shadowBlur = Player.getScaled(Spinner.BORDER_WIDTH);
+    Player.ctx.shadowBlur = Spinner.BORDER_WIDTH;
     Player.ctx.strokeStyle = '#fff';
-    Player.ctx.lineWidth = Player.getScaled(Spinner.BORDER_WIDTH);
+    Player.ctx.lineWidth = Spinner.BORDER_WIDTH;
     Player.ctx.stroke();
     Player.ctx.restore();
     // Approach
@@ -47,10 +47,10 @@ Spinner.draw = function(time)
     {
         var scale = 1 + dt / this.duration;
         Player.ctx.beginPath();
-        Player.ctx.arc(this.x, this.y, Player.getScaled(Spinner.RADIUS - Spinner.BORDER_WIDTH / 2) * scale, -Math.PI, Math.PI);
+        Player.ctx.arc(this.x, this.y, (Spinner.RADIUS - Spinner.BORDER_WIDTH / 2) * scale, -Math.PI, Math.PI);
         Player.ctx.shadowBlur = 3;
         Player.ctx.strokeStyle = '#fff';
-        Player.ctx.lineWidth = Player.getScaled(Spinner.BORDER_WIDTH / 2) * scale;
+        Player.ctx.lineWidth = (Spinner.BORDER_WIDTH / 2) * scale;
         Player.ctx.stroke();
     }
 };

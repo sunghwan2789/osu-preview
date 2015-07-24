@@ -40,6 +40,8 @@ Beatmap.prototype = {
     draw: undefined,
     processBG: undefined
 };
+Beatmap.WIDTH = 640;
+Beatmap.HEIGHT = 480;
 Beatmap.MAX_X = 512;
 Beatmap.MAX_Y = 384;
 Beatmap.prototype.parse = function(osu)
@@ -205,7 +207,6 @@ Beatmap.prototype.makeBG = function(img)
         ctx.drawImage(img, (img.width - aw) / 2, 0, aw, img.height, 0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'rgba(0, 0, 0, .4)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    img.remove();
 
     if (typeof this.processBG !== 'undefined')
     {
