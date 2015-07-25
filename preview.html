@@ -351,7 +351,7 @@ $('#share').on('click', function(e) {
         ].join('')
         .replace(/\$1/g, '<iframe src="$1" width="640" height="480"></iframe>'.replace(/"/g, '&quot;'))
         .replace(/\$3/g, '$1').replace(/\$4/g, '$3')
-        .replace(/\$2/g, '<a href="$1"><img src="$3" width="640" height="480" style="display:block">$2</a>'.replace(/"/g, '&quot;'))
+        .replace(/\$2/g, '<a href="$1" title="$2"><img src="$3" width="640" height="480"></a>'.replace(/"/g, '&quot;'))
         .replace(/\$1/g, location.href.replace(/^http:/, 'https:'))
         .replace(/\$2/g, 'osu! 비트맵 미러에서 ' + title.replace(/"/g, '&quot;') + ' 미리보기')
         .replace(/\$3/g, canvas.toDataURL('image/jpeg', 0.6)))
