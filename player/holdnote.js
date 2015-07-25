@@ -1,18 +1,8 @@
 function HoldNote(data)
 {
-    this.column = 0;
+    HitNote.call(this);
 
-    this.endTime = this.time;
-
-    //if (this instanceof HoldNote)
-    //{
-    //    this.parse(data);
-    //}
-    //else
-    //{
-    //    HoldNote.prototype.parse.call(this, data);
-    //}
-    HoldNote.parse.call(this, data);
+    this.endTime = data[0].split(':')[0] / 1000;
 
     this.draw = HoldNote.draw;
 }
@@ -20,12 +10,6 @@ HoldNote.id = 128;
 Mania.hitObjectTypes[HoldNote.id] = HoldNote;
 //HoldNote.prototype = Object.create(HitObject.prototype);
 //HoldNote.prototype.constructor = HoldNote;
-HoldNote.parse = function(data)
-{
-    HitNote.parse.call(this);
-
-    this.endTime = data[0].split(':')[0] / 1000;
-};
 HoldNote.draw = function(time)
 {
     var sy = HitNote.calcY.call(this, time),
@@ -38,15 +22,14 @@ HoldNote.draw = function(time)
     Player.ctx.fill();
 
     Player.ctx.beginPath();
-    Player.ctx.rect(this.x, sy, Player.beatmap.columnWidth, 10);
+    Player.ctx.rect(this.x, sy, Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
     Player.ctx.fill();
     Player.ctx.strokeStyle = '#ccc';
     Player.ctx.lineWidth = 1;
     Player.ctx.stroke();
 
-
     Player.ctx.beginPath();
-    Player.ctx.rect(this.x, ey, Player.beatmap.columnWidth, 10);
+    Player.ctx.rect(this.x, ey, Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
     Player.ctx.fill();
     Player.ctx.stroke();
 };

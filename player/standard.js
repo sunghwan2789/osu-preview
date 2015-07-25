@@ -17,7 +17,12 @@ Standard.hitObjectTypes = {};
 Beatmap.modes[Standard.id] = Standard;
 //Standard.prototype = Object.create(Beatmap.prototype);
 //Standard.prototype.costructor = Standard;
-Standard.DEFAULT_COLORS = [ '#fff' ];
+Standard.DEFAULT_COLORS = [
+    'rgb(0,202,0)',
+    'rgb(18,124,255)',
+    'rgb(242,24,57)',
+    'rgb(255,292,0)'
+];
 Standard.processHitObject = function(hitObject)
 {
     if (typeof this.current.combo === 'undefined')

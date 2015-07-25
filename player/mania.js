@@ -6,18 +6,9 @@ function Mania()
     this.keyCount = this.CircleSize;
     this.columnSize = Beatmap.MAX_X / this.keyCount;
     this.columnWidth = 30;
-    this.basePosition = {
-        x: 130,
-        y: 403
-    };
-    this.baseColors = [
-        '#5bf',
-        '#ccc',
-        '#da2',
-        '#568'
-    ];
-    this.scrollVelocity = 10;
+    this.scrollSpeed = 7;
 
+    this.onload = Mania.onload;
     this.draw = Mania.draw;
     this.processBG = Mania.processBG;
 }
@@ -26,18 +17,25 @@ Mania.hitObjectTypes = {};
 Beatmap.modes[Mania.id] = Mania;
 //Mania.prototype = Object.create(Beatmap.prototype);
 //Mania.prototype.costructor = Mania;
+Mania.DEFAULT_COLORS = [
+    '#5bf',
+    '#ccc',
+    '#da2'
+];
+Mania.COLUMN_START = 130;
+Mania.HIT_POSITION = 400;
 Mania.processHitObject = function(hitObject)
 {
     if (typeof this.current.colored === 'undefined')
     {
         for (var i = 0; i < this.keyCount; i++)
         {
-            this.Colors[i] = this.baseColors[i % 2];
+            this.Colors[i] = Mania.DEFAULT_COLORS[i % 2];
         }
         var p = this.keyCount / 2;
-        if (p != ~~p)
+        if (this.keyCount % 2)
         {
-            this.Colors[~~p] = this.baseColors[2];
+            this.Colors[p | 0] = Mania.DEFAULT_COLORS[2];
         }
         else
         {
@@ -45,8 +43,12 @@ Mania.processHitObject = function(hitObject)
         }
         this.current.colored = 1;
     }
-    hitObject.x = this.basePosition.x + this.columnWidth * hitObject.column;
+    hitObject.x = this.columnWidth * hitObject.column;
     hitObject.color = this.Colors[hitObject.column];
+};
+Mania.onload = function()
+{
+    Player.ctx.translate(Mania.COLUMN_START, 0);
 };
 Mania.draw = function(time)
 {
@@ -55,10 +57,6 @@ Mania.draw = function(time)
         this.current.first = 0;
         this.current.last = -1;
         this.current.pending = undefined;
-        Player.ctx.shadowBlur = 0;
-        Player.ctx.globalAlpha = 1;
-        Player.ctx.lineCap = 'butt';
-        Player.ctx.lineJoin = 'miter';
     }
     while (this.current.last + 1 < this.HitObjects.length &&
         time >= this.HitObjects[this.current.last + 1].time - 5)
@@ -76,7 +74,7 @@ Mania.draw = function(time)
                 idx: i
             };
         }
-        if (time > (hitObject.endTime || hitObject.time))
+        if (time > hitObject.endTime)
         {
             this.current.first = i + 1;
             continue;
@@ -95,14 +93,12 @@ Mania.draw = function(time)
             this.current.pending = undefined;
         }
     }
-    Player.ctx.clearRect(this.basePosition.x, this.basePosition.y, Player.w, Player.h);
+    Player.ctx.clearRect(0, Mania.HIT_POSITION, Beatmap.WIDTH, Beatmap.HEIGHT - Mania.HIT_POSITION);
 };
 Mania.processBG = function(ctx)
 {
-    var ey = Beatmap.HEIGHT;
-
     ctx.beginPath();
-    ctx.rect(this.basePosition.x, 0, this.columnWidth * this.keyCount, ey);
+    ctx.rect(Mania.COLUMN_START, 0, this.columnWidth * this.keyCount, Beatmap.HEIGHT);
     ctx.strokeStyle = '#ddd';
     ctx.lineWidth = 8;
     ctx.stroke();
@@ -111,37 +107,37 @@ Mania.processBG = function(ctx)
 
     for (var i = 0; i < this.keyCount; i++)
     {
-        var x = this.basePosition.x + this.columnWidth * i;
+        var x = Mania.COLUMN_START + this.columnWidth * i;
 
         ctx.beginPath();
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, ey);
+        ctx.lineTo(x, Beatmap.HEIGHT - 80);
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 1;
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.rect(x, this.basePosition.y, this.columnWidth, ey - this.basePosition.y);
+        ctx.rect(x, Beatmap.HEIGHT - 80, this.columnWidth, 80);
         ctx.fillStyle = this.Colors[i];
         ctx.fill();
         ctx.strokeStyle = '#ddd';
         ctx.lineWidth = 3;
         ctx.stroke();
     }
-    var x = this.basePosition.x + this.columnWidth * this.keyCount;
+    var x = Mania.COLUMN_START + this.columnWidth * this.keyCount;
     ctx.beginPath();
     ctx.moveTo(x, 0);
-    ctx.lineTo(x, ey);
+    ctx.lineTo(x, Beatmap.HEIGHT - 80);
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 1;
     ctx.stroke();
-
+    // HIT POSITION
     ctx.beginPath();
-    ctx.rect(this.basePosition.x, this.basePosition.y, this.columnWidth * this.keyCount, 10);
+    ctx.rect(Mania.COLUMN_START, Mania.HIT_POSITION, this.columnWidth * this.keyCount, this.columnWidth / 3);
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.fillStyle = this.baseColors[3];
+    ctx.fillStyle = '#568';
     ctx.fill();
 
     ctx.fillStyle = '#09f';

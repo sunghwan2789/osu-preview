@@ -11,13 +11,17 @@ function TimingPoint(line)
     var beatLength = +data[1];
     if (beatLength >= 0)
     {
-        this.velocity = 1;
+        this.sliderVelocity = 1;
         this.beatLength = beatLength;
         Player.beatmap.current.beatLength = this.beatLength;
     }
     else
     {
-        this.velocity = beatLength / -100;
-        this.beatLength = Player.beatmap.current.beatLength * this.velocity;
+        this.sliderVelocity = beatLength / -100;
+        this.beatLength = Player.beatmap.current.beatLength * this.sliderVelocity;
     }
 }
+TimingPoint.prototype.getBPM = function()
+{
+    return 1000 / this.beatLength * 60;
+};

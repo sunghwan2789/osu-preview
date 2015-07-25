@@ -16,9 +16,9 @@ function Slider(data)
     this.repeat = data[1] | 0;
     this.pixelLength = +data[2];
 
-    var velocity = 100 / Player.beatmap.getTimingPoint(this.time).beatLength *
+    var speed = 100 / Player.beatmap.getTimingPoint(this.time).beatLength *
             Player.beatmap.SliderMultiplier;
-    this.endTime += this.pixelLength / velocity * this.repeat / 1000;
+    this.endTime += this.pixelLength / speed * this.repeat / 1000;
     this.duration = this.endTime - this.time;
 
     // currently, there are 4 sliderTypes
