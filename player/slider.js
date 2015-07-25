@@ -340,7 +340,7 @@ Slider.draw = function(time)
     var repeat = -dt * this.repeat / this.duration;
     if (this.repeat > 1 && repeat <= this.repeat - 1 - this.repeat % 2)
     {
-        HitCircle.drawText(this.endX, this.endY, Slider.REVERSE_ARROW, this.endAngle);
+        HitCircle.drawText.call(this.endX, this.endY, Slider.REVERSE_ARROW, this.endAngle);
     }
     if (repeat > 0 &&
         repeat <= this.repeat - 1 - (this.repeat + 1) % 2)
