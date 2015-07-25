@@ -367,10 +367,10 @@ Slider.drawPath = function()
     // Slider
     Player.ctx.globalAlpha *= Slider.OPACITY;
     Player.ctx.beginPath();
-    Player.ctx.moveTo(this.x, this.y);
+    Player.ctx.moveTo(this.x - this.stack * Player.beatmap.stackOffset, this.y - this.stack * Player.beatmap.stackOffset);
     for (var i = 1, l = this.path.length; i < l; i++)
     {
-        Player.ctx.lineTo(this.path[i].x, this.path[i].y);
+        Player.ctx.lineTo(this.path[i].x - this.stack * Player.beatmap.stackOffset, this.path[i].y - this.stack * Player.beatmap.stackOffset);
     }
     Player.ctx.shadowBlur = 0;
     Player.ctx.strokeStyle = this.color;
@@ -393,7 +393,7 @@ Slider.drawFollowCircle = function(repeat)
     }
     var point = this.pointAt(repeat);
     Player.ctx.beginPath();
-    Player.ctx.arc(point.x, point.y, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
+    Player.ctx.arc(point.x - this.stack * Player.beatmap.stackOffset, point.y - this.stack * Player.beatmap.stackOffset, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
     Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
     Player.ctx.strokeStyle = '#fff';
     Player.ctx.lineWidth = Player.beatmap.circleBorder;

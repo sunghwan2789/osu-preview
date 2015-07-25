@@ -40,7 +40,7 @@ HitCircle.drawCircle = function(x, y)
 {
     // HitCircle
     Player.ctx.beginPath();
-    Player.ctx.arc(x, y, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
+    Player.ctx.arc(x - this.stack * Player.beatmap.stackOffset, y - this.stack * Player.beatmap.stackOffset, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
     Player.ctx.shadowBlur = 0;
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();
@@ -55,7 +55,7 @@ HitCircle.drawText = function(x, y, text, deg)
     Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
     Player.ctx.fillStyle = '#fff';
     Player.ctx.save();
-    Player.ctx.translate(x, y);
+    Player.ctx.translate(x - this.stack * Player.beatmap.stackOffset, y - this.stack * Player.beatmap.stackOffset);
     if (typeof deg !== 'undefined')
     {
         Player.ctx.rotate(deg);
@@ -67,7 +67,7 @@ HitCircle.drawApproach = function(dt)
 {
     var scale = 1 + dt / Player.beatmap.approachTime * 3;
     Player.ctx.beginPath();
-    Player.ctx.arc(this.x, this.y, Player.beatmap.circleRadius * scale - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
+    Player.ctx.arc(this.x - this.stack * Player.beatmap.stackOffset, this.y - this.stack * Player.beatmap.stackOffset, Player.beatmap.circleRadius * scale - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
     Player.ctx.shadowBlur = 0;
     Player.ctx.strokeStyle = this.color;
     Player.ctx.lineWidth = Player.beatmap.circleBorder / 2 * scale;

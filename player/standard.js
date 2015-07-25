@@ -32,10 +32,6 @@ Standard.processHitObject = function(hitObject)
         this.current.combo = 1;
         this.current.comboIndex = -1;
         this.current.setComboIndex = 1;
-        if (typeof Slider === 'undefined')
-        {
-            window.Slider = {};
-        }
         if (typeof Spinner === 'undefined')
         {
             window.Spinner = {};
@@ -62,6 +58,10 @@ Standard.STACK_OFFSET_MODIFIER = 0.05;
 Standard.calcStacks = function()
 {
     // https://gist.github.com/peppy/1167470
+    if (typeof Slider === 'undefined')
+    {
+        window.Slider = {};
+    }
     for (var i = this.HitObjects.length - 1; i > 0; i--)
     {
         var hitObject = this.HitObjects[i];
