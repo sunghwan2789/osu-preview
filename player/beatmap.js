@@ -35,6 +35,7 @@ Beatmap.prototype = {
     hitObjectTypes: undefined,
     hitObjectTypeMask: 0,
     processHitObject: undefined,
+    onload: undefined,
     draw: undefined,
     processBG: undefined
 };
@@ -88,6 +89,10 @@ Beatmap.prototype.parse = function(osu)
                 break;
             }
         }
+    }
+    if (typeof this.onload !== 'undefined')
+    {
+        this.onload();
     }
 };
 Beatmap.prototype.parsePair = function(line)

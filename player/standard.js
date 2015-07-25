@@ -8,6 +8,7 @@ function Standard()
     this.circleDiameter = 104 - this.CircleSize * 8;
     this.stackOffset = this.circleDiameter * Standard.STACK_OFFSET_MODIFIER;
 
+    this.onload = Standard.onload;
     this.draw = Standard.draw;
     this.processBG = Standard.processBG;
 }
@@ -113,25 +114,23 @@ Standard.calcStacks = function()
         }
     }
 };
+Standard.onload = function()
+{
+    Standard.calcStacks.call(this);
+
+    this.circleRadius = this.circleDiameter / 2;
+    this.circleBorder = this.circleRadius / 8;
+    this.shadowBlur = this.circleRadius / 15;
+    Player.ctx.shadowColor = '#666';
+    Player.ctx.lineCap = 'round';
+    Player.ctx.lineJoin = 'round';
+    Player.ctx.font = this.circleRadius + 'px "Comic Sans MS", cursive, sans-serif';
+    Player.ctx.textAlign = 'center';
+    Player.ctx.textBaseline = 'middle';
+    Player.ctx.translate((Beatmap.WIDTH - Beatmap.MAX_X) / 2, (Beatmap.HEIGHT - Beatmap.MAX_Y) / 2);
+};
 Standard.draw = function(time)
 {
-    if (typeof this.init === 'undefined')
-    {
-        Standard.calcStacks.call(this);
-
-        this.circleRadius = this.circleDiameter / 2;
-        this.circleBorder = this.circleRadius / 8;
-        this.shadowBlur = this.circleRadius / 15;
-        Player.ctx.shadowColor = '#666';
-        Player.ctx.lineCap = 'round';
-        Player.ctx.lineJoin = 'round';
-        Player.ctx.font = this.circleRadius + 'px "Comic Sans MS", cursive, sans-serif';
-        Player.ctx.textAlign = 'center';
-        Player.ctx.textBaseline = 'middle';
-        Player.ctx.translate((Beatmap.WIDTH - Beatmap.MAX_X) / 2, (Beatmap.HEIGHT - Beatmap.MAX_Y) / 2);
-
-        this.init = 1;
-    }
     if (typeof this.current.first === 'undefined')
     {
         this.current.first = 0;
