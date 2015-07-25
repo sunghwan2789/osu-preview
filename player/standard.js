@@ -4,7 +4,7 @@ function Standard()
     this.processHitObject = Standard.processHitObject;
 
     var ar = this.ApproachRate || this.OverallDifficulty;
-    this.approachTime = ar < 5 ? 1.8 - ar * 0.12 : 1.2 - (ar - 5) * 0.15;
+    this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
     this.circleDiameter = 104 - this.CircleSize * 8;
     this.stackOffset = this.circleDiameter * Standard.STACK_OFFSET_MODIFIER;
 
@@ -59,7 +59,7 @@ Standard.processHitObject = function(hitObject)
     hitObject.color = this.Colors[this.current.comboIndex];
 };
 Standard.STACK_LENIENCE = 3;
-Standard.STACK_TIMEOUT = 1;
+Standard.STACK_TIMEOUT = 1000;
 Standard.STACK_OFFSET_MODIFIER = 0.05;
 Standard.calcStacks = function()
 {

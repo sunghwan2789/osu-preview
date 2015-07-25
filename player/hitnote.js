@@ -14,16 +14,9 @@ HitNote.calcY = function(time, nTime)
     // Player.ctx.font = '20px Arial';
     // Player.ctx.textBaseline = 'top';
     // Player.ctx.fillText(Player.beatmap.getTimingPoint(time).bpm, 0, 60);
-    // nTime = nTime || this.time;
-    // return Player.beatmap.basePosition.y -
-    //     Player.getScaled(nTime - time) /
-    //     (60 * 60 / Player.beatmap.getTimingPoint(nTime).bpm / Player.beatmap.getTimingPoint(time).bpm) *
-    //     Player.beatmap.scrollVelocity;
     nTime = nTime || this.time;
     return Mania.HIT_POSITION -
-        (nTime - time) *
-        //(120 / 4) * // bpm based y calculation
-        Player.beatmap.getTimingPoint(time).getBPM() * Player.beatmap.scrollSpeed;
+        (nTime - time) * Player.beatmap.getTimingPoint(time).sliderVelocity * Player.beatmap.scrollSpeed;
 };
 HitNote.draw = function(time)
 {

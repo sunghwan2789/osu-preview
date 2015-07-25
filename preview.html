@@ -221,7 +221,7 @@ Player.play = function()
     Player.ctx.setTransform(1, 0, 0, 1, 0, 0);
     Player.ctx.clearRect(0, 0, Player.width(), Player.height());
     Player.ctx.restore();
-    Player.beatmap.draw(Player.audio.currentTime);
+    Player.beatmap.draw(Player.audio.currentTime * 1000);
     if (!Player.audio.paused)
     {
         requestAnimationFrame(Player.play);
@@ -258,11 +258,11 @@ Player.body.on('mousemove', function() {
 }).on('keydown', function(e) {
     if (e.keyCode == 187 || e.keyCode == 189)
     {
-        if (typeof Player.beatmap.scrollVelocity !== 'undefined')
+        if (typeof Player.beatmap.scrollSpeed !== 'undefined')
         {
             // 187: =, 189: -
-            Player.beatmap.scrollVelocity += 188 - e.keyCode;
-            console.log(Player.beatmap.scrollVelocity);
+            Player.beatmap.scrollSpeed += 188 - e.keyCode;
+            console.log(Player.beatmap.scrollSpeed);
         }
     }
 });

@@ -18,7 +18,7 @@ function Slider(data)
 
     var speed = 100 / Player.beatmap.getTimingPoint(this.time).beatLength *
             Player.beatmap.SliderMultiplier;
-    this.endTime += this.pixelLength / speed * this.repeat / 1000;
+    this.endTime += this.pixelLength / speed * this.repeat;
     this.duration = this.endTime - this.time;
 
     // currently, there are 4 sliderTypes
@@ -317,8 +317,8 @@ Slider.parseEqualDistanceMultiCurve = function(curves)
         }
     };
 };
-Slider.FADE_IN_TIME = 0.375;
-Slider.FADE_OUT_TIME = 0.2;
+Slider.FADE_IN_TIME = 375;
+Slider.FADE_OUT_TIME = 200;
 Slider.REVERSE_ARROW = String.fromCharCode(10132);
 Slider.OPACITY = 0.66;
 Slider.draw = function(time)

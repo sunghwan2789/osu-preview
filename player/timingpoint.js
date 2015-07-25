@@ -6,7 +6,7 @@ function TimingPoint(line)
         return;
     }
 
-    this.time = data[0] / 1000;
+    this.time = data[0] | 0;
 
     var beatLength = +data[1];
     if (beatLength >= 0)
@@ -19,6 +19,7 @@ function TimingPoint(line)
     {
         this.sliderVelocity = beatLength / -100;
         this.beatLength = Player.beatmap.current.beatLength * this.sliderVelocity;
+        this.inherited = 1;
     }
 }
 TimingPoint.prototype.getBPM = function()

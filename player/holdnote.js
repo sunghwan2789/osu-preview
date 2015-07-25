@@ -2,7 +2,7 @@ function HoldNote(data)
 {
     HitNote.call(this);
 
-    this.endTime = data[0].split(':')[0] / 1000;
+    this.endTime = data[0].split(':')[0] | 0;
 
     this.draw = HoldNote.draw;
 }

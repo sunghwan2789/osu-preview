@@ -2,7 +2,7 @@ function Spinner(data)
 {
     HitCircle.call(this);
 
-    this.endTime = data[0] / 1000;
+    this.endTime = data[0] | 0;
     this.duration = this.endTime - this.time;
 
     this.draw = Spinner.draw;
@@ -11,8 +11,8 @@ Spinner.id = 8;
 Standard.hitObjectTypes[Spinner.id] = Spinner;
 //Spinner.prototype = Object.create(HitCirle.prototype);
 //Spinner.prototype.constructor = Spinner;
-Spinner.FADE_IN_TIME = 0.5;
-Spinner.FADE_OUT_TIME = 0.2;
+Spinner.FADE_IN_TIME = 500;
+Spinner.FADE_OUT_TIME = 200;
 Spinner.RADIUS = Beatmap.MAX_Y / 2;
 Spinner.BORDER_WIDTH = Spinner.RADIUS / 20;
 Spinner.draw = function(time)

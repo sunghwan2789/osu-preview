@@ -8,7 +8,7 @@ function HitObject(line)
 
     this.x = data[0] | 0;
     this.y = data[1] | 0;
-    this.time = data[2] / 1000;
+    this.time = data[2] | 0;
     this.flag = data[3] | 0;
 
     var type = Player.beatmap.hitObjectTypes[this.flag & Player.beatmap.hitObjectTypeMask];

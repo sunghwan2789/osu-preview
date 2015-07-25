@@ -151,36 +151,27 @@ Beatmap.prototype.parseHitObject = function(line)
 };
 Beatmap.prototype.getTimingPoint = function(time)
 {
-    // var begin = 0,
-    //     end = this.TimingPoints.length,
-    //     mid = 0;
-    // while (begin <= end)
-    // {
-    //     mid = (begin + end) / 2 | 0;
-    //     if (time >= this.TimingPoints[mid].time)
-    //     {
-    //         if (mid + 1 == end || time < this.TimingPoints[mid + 1].time)
-    //         {
-    //             return this.TimingPoints[mid];
-    //         }
-    //         begin = mid + 1;
-    //     }
-    //     else
-    //     {
-    //         end = mid - 1;
-    //     }
-    // }
-    // return this.TimingPoints[mid];
-    if (typeof this.current.timingPointIndex === 'undefined')
+    var begin = 0,
+        end = this.TimingPoints.length;
+    while (begin <= end)
     {
-        this.current.timingPointIndex = 0;
+        var mid = (begin + end) / 2 | 0,
+            current = this.TimingPoints[mid];
+        if (time >= current.time)
+        {
+            var next = this.TimingPoints[mid + 1];
+            if (typeof next === 'undefined' || time < next.time)
+            {
+                return current;
+            }
+            begin = mid + 1;
+        }
+        else
+        {
+            end = mid - 1;
+        }
     }
-    while (this.current.timingPointIndex + 1 < this.TimingPoints.length &&
-        time >= this.TimingPoints[this.current.timingPointIndex + 1].time)
-    {
-        this.current.timingPointIndex++;
-    }
-    return this.TimingPoints[this.current.timingPointIndex];
+    return this.TimingPoints[0];
 };
 Beatmap.prototype.toString = function()
 {

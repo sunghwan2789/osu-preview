@@ -15,8 +15,8 @@ HitCircle.id = 1;
 Standard.hitObjectTypes[HitCircle.id] = HitCircle;
 //HitCircle.prototype = Object.create(HitObject.prototype);
 //HitCircle.prototype.constructor = HitCircle;
-HitCircle.FADE_IN_TIME = 0.375;
-HitCircle.FADE_OUT_TIME = 0.2;
+HitCircle.FADE_IN_TIME = 375;
+HitCircle.FADE_OUT_TIME = 200;
 HitCircle.draw = function(time)
 {
     var dt = this.time - time,
