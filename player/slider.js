@@ -48,7 +48,7 @@ Slider.id = 2;
 Standard.hitObjectTypes[Slider.id] = Slider;
 //Slider.prototype = Object.create(HitCircle.prototype);
 //Slider.prototype.constructor = Slider;
-Slider.SEGMENT_LENGTH = 5;
+Slider.CURVE_LENGTH = 5;
 Slider.parseCircumscribedCircle = function()
 {
     var a = this.points[0].x - this.points[1].x, b = this.points[0].y - this.points[1].y,
@@ -85,11 +85,11 @@ Slider.parseCircumscribedCircle = function()
         };
     };
 
-    var segments = this.pixelLength / Slider.SEGMENT_LENGTH | 0;
+    var nCurve = this.pixelLength / Slider.CURVE_LENGTH | 0;
     this.path = [];
-    for (var i = 0; i <= segments; i++)
+    for (var i = 0; i <= nCurve; i++)
     {
-        this.path[i] = this.pointAt(i / segments);
+        this.path[i] = this.pointAt(i / nCurve);
     }
 };
 Slider.parseCatmullCurve = function()
@@ -123,6 +123,7 @@ Slider.parseCatmullCurve = function()
 };
 function CentripetalCatmullRom(points)
 {
+    // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/CentripetalCatmullRom.java
     // needs 4 points
     this.points = points;
     var approxLength = 0;
@@ -133,7 +134,7 @@ function CentripetalCatmullRom(points)
             len = Math.sqrt(dx * dx + dy * dy);
         approxLength += len;
     }
-    CurveType.call(this, approxLength / 2);
+    Curve.call(this, approxLength / 2);
 }
 CentripetalCatmullRom.prototype.pointAt = function(t, p)
 {
@@ -190,6 +191,7 @@ Slider.parseLinearBezier = function(line)
 };
 function Bezier2(points)
 {
+    // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/Bezier2.java
     this.points = points;
     var approxLength = 0;
     for (var i = 1, l = this.points.length; i < l; i++)
@@ -199,7 +201,7 @@ function Bezier2(points)
             len = Math.sqrt(dx * dx + dy * dy);
         approxLength += len;
     }
-    CurveType.call(this, approxLength);
+    Curve.call(this, approxLength);
 }
 Bezier2.prototype.pointAt = function(t)
 {
@@ -219,56 +221,56 @@ Bezier2.prototype.pointAt = function(t)
         y: y
     };
 };
-function CurveType(approxLength)
+function Curve(approxLength)
 {
-    this.pathLength = (approxLength / 4 | 0) + 2;
+    // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/CurveType.java
+    var points = (approxLength / 4 | 0) + 1;
     this.path = [];
-    for (var i = 0; i < this.pathLength; i++)
+    for (var i = 0; i <= points; i++)
     {
-        this.path[i] = this.pointAt(i / (this.pathLength - 1));
+        this.path[i] = this.pointAt(i / points);
     }
 
-    this.pathDistance = [ 0 ];
-    this.totalDistance = 0;
-    for (var i = 1; i < this.pathLength; i++)
+    this.pointDistance = [ 0 ];
+    for (var i = 1; i <= points; i++)
     {
         var dx = this.path[i].x - this.path[i - 1].x,
             dy = this.path[i].y - this.path[i - 1].y,
             len = Math.sqrt(dx * dx + dy * dy);
-        this.pathDistance[i] = len;
-        this.totalDistance += len;
+        this.pointDistance[i] = len;
     }
 }
 Slider.parseEqualDistanceMultiCurve = function(curves)
 {
-    var segments = this.pixelLength / Slider.SEGMENT_LENGTH | 0;
+    // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/EqualDistanceMultiCurve.java
+    var nCurve = this.pixelLength / Slider.CURVE_LENGTH | 0;
     this.path = [];
 
     var distanceAt = 0,
         curveIndex = 0,
-        curCurve = curves[curveIndex],
-        curPoint = 0,
-        lastCurve = curCurve.path[0],
+        curve = curves[curveIndex],
+        pointIndex = 0,
+        startPoint = curve.path[0],
         lastDistanceAt = 0;
     // for each distance, try to get in between the two points that are between it
-    for (var i = 0; i <= segments; i++)
+    for (var i = 0; i <= nCurve; i++)
     {
-        var prefDistance = i * this.pixelLength / segments | 0;
+        var prefDistance = i * Slider.CURVE_LENGTH;
         while (distanceAt < prefDistance)
         {
             lastDistanceAt = distanceAt;
-            lastCurve = curCurve.path[curPoint];
+            startPoint = curve.path[pointIndex];
 
-            if (++curPoint >= curCurve.path.length)
+            if (++pointIndex >= curve.path.length)
             {
                 if (curveIndex + 1 < curves.length)
                 {
-                    curCurve = curves[++curveIndex];
-                    curPoint = 0;
+                    curve = curves[++curveIndex];
+                    pointIndex = 0;
                 }
                 else
                 {
-                    curPoint = curCurve.path.length - 1;
+                    pointIndex = curve.path.length - 1;
                     if (lastDistanceAt == distanceAt)
                     {
                         // out of points even though the preferred distance hasn't been reached
@@ -276,32 +278,32 @@ Slider.parseEqualDistanceMultiCurve = function(curves)
                     }
                 }
             }
-            distanceAt += curCurve.pathDistance[curPoint];
+            distanceAt += curve.pointDistance[pointIndex];
         }
-        var thisCurve = curCurve.path[curPoint];
+        var endPoint = curve.path[pointIndex];
 
         // interpolate the point between the two closest distances
         if (distanceAt - lastDistanceAt > 1)
         {
             var t = (prefDistance - lastDistanceAt) / (distanceAt - lastDistanceAt);
             this.path[i] = {
-                x: lastCurve.x + (thisCurve.x - lastCurve.x) * t,
-                y: lastCurve.y + (thisCurve.y - lastCurve.y) * t
+                x: startPoint.x + (endPoint.x - startPoint.x) * t,
+                y: startPoint.y + (endPoint.y - startPoint.y) * t
             };
         }
         else
         {
-            this.path[i] = thisCurve;
+            this.path[i] = endPoint;
         }
     }
     this.pointAt = function(t)
     {
-        var segments = this.path.length,
-            indexF = t * segments,
+        var nCurve = this.path.length - 1,
+            indexF = t * (nCurve + 1),
             index = indexF | 0;
-        if (index + 1 >= segments)
+        if (index >= nCurve)
         {
-            return this.path[segments - 1];
+            return this.path[nCurve];
         }
         else
         {

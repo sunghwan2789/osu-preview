@@ -3,6 +3,8 @@ function HitCircle()
     this.newCombo = this.flag & 4;
     this.comboSkip = this.flag >> 4;
 
+    this.endX = this.x;
+    this.endY = this.y;
     this.endTime = this.time;
 
     this.stack = 0;

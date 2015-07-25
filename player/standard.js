@@ -84,8 +84,8 @@ Standard.calcStacks = function()
                 break;
             }
 
-            var dx = hitObject.x - (hitObjectN.endX || hitObjectN.x),
-                dy = hitObject.y - (hitObjectN.endY || hitObjectN.y),
+            var dx = hitObject.x - hitObjectN.endX,
+                dy = hitObject.y - hitObjectN.endY,
                 l = Math.sqrt(dx * dx + dy * dy);
             if (hitObjectN.type.id == Slider.id &&
                 l < Standard.STACK_LENIENCE)
@@ -94,8 +94,8 @@ Standard.calcStacks = function()
                 for (var j = n + 1; j <= i; j++)
                 {
                     var hitObjectJ = this.HitObjects[j];
-                    dx = hitObjectJ.x - (hitObjectN.endX || hitObjectN.x);
-                    dy = hitObjectJ.y - (hitObjectN.endY || hitObjectN.y);
+                    dx = hitObjectJ.x - hitObjectN.endX;
+                    dy = hitObjectJ.y - hitObjectN.endY;
                     l = Math.sqrt(dx * dx + dy * dy);
                     if (l < Standard.STACK_LENIENCE)
                     {
