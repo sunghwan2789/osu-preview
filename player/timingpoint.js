@@ -9,8 +9,9 @@ function TimingPoint(line)
     this.time = data[0] / 1000;
 
     var beatLength = +data[1];
-    if (beatLength > 0)
+    if (beatLength >= 0)
     {
+        this.velocity = 1;
         this.beatLength = beatLength;
         Player.beatmap.current.beatLength = this.beatLength;
     }
@@ -18,6 +19,5 @@ function TimingPoint(line)
     {
         this.velocity = beatLength / -100;
         this.beatLength = Player.beatmap.current.beatLength * this.velocity;
-        this.inherited = 1;
     }
 }

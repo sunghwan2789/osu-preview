@@ -6,7 +6,6 @@ function Beatmap(osu)
     // [General]
     this.Mode = 0;
     this.StackLeniency = 0.7;
-    this.WidescreenStoryboard = 0;
 
     // [Metadata]
     this.Title = '';
@@ -17,7 +16,6 @@ function Beatmap(osu)
     this.Version = 'Normal';
 
     // [Difficulty]
-    this.HPDrainRate = 5;
     this.CircleSize = 4;
     this.OverallDifficulty = 5;
     this.ApproachRate = undefined;
