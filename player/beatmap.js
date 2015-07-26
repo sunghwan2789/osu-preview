@@ -152,13 +152,13 @@ Beatmap.prototype.parseHitObject = function(line)
 Beatmap.prototype.timingPointIndexAt = function(time)
 {
     var begin = 0,
-        end = this.TimingPoints.length;
+        end = this.TimingPoints.length - 1;
     while (begin <= end)
     {
         var mid = (begin + end) / 2 | 0;
         if (time >= this.TimingPoints[mid].time)
         {
-            if (mid + 1 >= this.TimingPoints.length ||
+            if (mid + 1 == this.TimingPoints.length ||
                 time < this.TimingPoints[mid + 1].time)
             {
                 return mid;
