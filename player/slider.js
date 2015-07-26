@@ -4,7 +4,7 @@ function Slider(data)
 
     var points = data[0].split('|');
     this.sliderType = points[0];
-    for (var i = 1, l = points.length; i < l; i++)
+    for (var i = 1; i < points.length; i++)
     {
         var point = points[i].split(':');
         points[i] = {
@@ -16,7 +16,7 @@ function Slider(data)
     this.repeat = data[1] | 0;
     this.pixelLength = +data[2];
 
-    var speed = 100 / Player.beatmap.getTimingPoint(this.time).beatLength *
+    var speed = 100 / Player.beatmap.timingPointAt(this.time).beatLength *
             Player.beatmap.SliderMultiplier;
     this.endTime += this.pixelLength / speed * this.repeat;
     this.duration = this.endTime - this.time;
@@ -101,7 +101,7 @@ Slider.parseCatmullCurve = function()
     {
         points.push(this.points[0]);
     }
-    for (var i = 0, l = this.points.length; i < l; i++)
+    for (var i = 0; i < this.points.length; i++)
     {
         points.push(this.points[i]);
         if (points.length == 4)
@@ -159,7 +159,7 @@ Slider.parseLinearBezier = function(line)
     var beziers = [],
         points = [],
         last = undefined;
-    for (var i = 0, l = this.points.length; i < l; i++)
+    for (var i = 0; i < this.points.length; i++)
     {
         var point = this.points[i];
         if (line)
@@ -194,7 +194,7 @@ function Bezier2(points)
     // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/Bezier2.java
     this.points = points;
     var approxLength = 0;
-    for (var i = 1, l = this.points.length; i < l; i++)
+    for (var i = 1; i < this.points.length; i++)
     {
         var dx = this.points[i].x - this.points[i - 1].x,
             dy = this.points[i].y - this.points[i - 1].y,
@@ -370,7 +370,7 @@ Slider.drawPath = function()
     Player.ctx.globalAlpha *= Slider.OPACITY;
     Player.ctx.beginPath();
     Player.ctx.moveTo(this.x - this.stack * Player.beatmap.stackOffset, this.y - this.stack * Player.beatmap.stackOffset);
-    for (var i = 1, l = this.path.length; i < l; i++)
+    for (var i = 1; i < this.path.length; i++)
     {
         Player.ctx.lineTo(this.path[i].x - this.stack * Player.beatmap.stackOffset, this.path[i].y - this.stack * Player.beatmap.stackOffset);
     }

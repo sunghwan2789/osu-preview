@@ -149,20 +149,19 @@ Beatmap.prototype.parseHitObject = function(line)
         this.HitObjects.push(hitObject);
     }
 };
-Beatmap.prototype.getTimingPoint = function(time)
+Beatmap.prototype.timingPointIndexAt = function(time)
 {
     var begin = 0,
         end = this.TimingPoints.length;
     while (begin <= end)
     {
-        var mid = (begin + end) / 2 | 0,
-            current = this.TimingPoints[mid];
-        if (time >= current.time)
+        var mid = (begin + end) / 2 | 0;
+        if (time >= this.TimingPoints[mid].time)
         {
-            var next = this.TimingPoints[mid + 1];
-            if (typeof next === 'undefined' || time < next.time)
+            if (mid + 1 >= this.TimingPoints.length ||
+                time < this.TimingPoints[mid + 1].time)
             {
-                return current;
+                return mid;
             }
             begin = mid + 1;
         }
@@ -171,7 +170,11 @@ Beatmap.prototype.getTimingPoint = function(time)
             end = mid - 1;
         }
     }
-    return this.TimingPoints[0];
+    return 0;
+};
+Beatmap.prototype.timingPointAt = function(time)
+{
+    return this.TimingPoints[this.timingPointIndexAt(time)];
 };
 Beatmap.prototype.toString = function()
 {

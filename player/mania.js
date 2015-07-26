@@ -26,7 +26,7 @@ Mania.COLUMN_START = 130;
 Mania.HIT_POSITION = 400;
 Mania.processHitObject = function(hitObject)
 {
-    if (typeof this.current.colored === 'undefined')
+    if (typeof this.current.offset === 'undefined')
     {
         for (var i = 0; i < this.keyCount; i++)
         {
@@ -41,10 +41,19 @@ Mania.processHitObject = function(hitObject)
         {
             this.Colors = this.Colors.slice(0, p).concat(this.Colors.slice(p - 1));
         }
-        this.current.colored = 1;
+        this.current.offset = this.timingPointAt(0).time * 0.035;
     }
-    hitObject.x = this.columnWidth * hitObject.column;
     hitObject.color = this.Colors[hitObject.column];
+    hitObject.x = this.columnWidth * hitObject.column;
+    hitObject.y = this.current.offset;
+    for (var i = 1; i < this.timingPointIndexAt(hitObject.time); i++)
+    {
+        var current = this.TimingPoints[i],
+            prev = this.TimingPoints[i - 1];
+        hitObject.y += (current.time - prev.time) * prev.sliderVelocity * 0.035;
+    }
+    var current = this.timingPointAt(hitObject.time);
+    hitObject.y += (hitObject.time - current.time) * current.sliderVelocity * 0.035;
 };
 Mania.onload = function()
 {
@@ -57,16 +66,28 @@ Mania.draw = function(time)
         this.current.first = 0;
         this.current.last = -1;
         this.current.pending = undefined;
+        this.current.timingPointIndex = 0;
+        this.current.y = 0;
     }
+    var timingPointIndex = this.timingPointIndexAt(time);
+    for (; this.current.timingPointIndex < timingPointIndex; this.current.timingPointIndex++)
+    {
+        var current = this.TimingPoints[this.current.timingPointIndex],
+            prev = this.TimingPoints[this.current.timingPointIndex - 1];
+        this.current.y += (current.time - prev.time) * prev.sliderVelocity * 0.035;
+    }
+    var current = this.TimingPoints[timingPointIndex];
+    var y = this.current.y + (time - current.time) * current.sliderVelocity * 0.035;
+
     while (this.current.last + 1 < this.HitObjects.length &&
-        time >= this.HitObjects[this.current.last + 1].time - 5)
+        time >= this.HitObjects[this.current.last + 1].time - 5000)
     {
         this.current.last++;
     }
     for (var i = this.current.first; i <= this.current.last; i++)
     {
         var hitObject = this.HitObjects[i];
-        if (typeof hitObject.endTime !== 'undefined' &&
+        if (hitObject.type.id == HoldNote.id &&
             typeof this.current.pending === 'undefined')
         {
             this.current.pending = {
@@ -80,7 +101,7 @@ Mania.draw = function(time)
             continue;
         }
 
-        hitObject.draw(time);
+        hitObject.draw(time, y);
     }
     if (typeof this.current.pending !== 'undefined')
     {
@@ -143,5 +164,5 @@ Mania.processBG = function(ctx)
     ctx.fillStyle = '#09f';
     ctx.font = '26px Arial';
     ctx.textBaseline = 'top';
-    ctx.fillText('WIP(Help me...)', 5, 60);
+    ctx.fillText('WIP', 5, 60);
 };
