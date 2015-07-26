@@ -6,7 +6,7 @@ function Mania()
     this.keyCount = this.CircleSize;
     this.columnSize = Beatmap.MAX_X / this.keyCount;
     this.columnWidth = 30;
-    this.scrollSpeed = 10;
+    this.scrollSpeed = 20;
 
     this.onload = Mania.onload;
     this.draw = Mania.draw;
@@ -68,6 +68,9 @@ Mania.processHitObject = function(hitObject)
 Mania.onload = function()
 {
     Player.ctx.translate(Mania.COLUMN_START, 0);
+
+    $('#mania').addClass('e');
+    $('#scroll').text(this.scrollSpeed);
 };
 Mania.draw = function(time)
 {
@@ -77,17 +80,17 @@ Mania.draw = function(time)
         this.current.last = -1;
         this.current.pending = undefined;
         this.current.timingPointIndex = 1;
-        this.current.y = this.TimingPoints[0].time;
+        this.current.scroll = this.TimingPoints[0].time;
     }
     var timingPointIndex = this.timingPointIndexAt(time);
     for (; this.current.timingPointIndex <= timingPointIndex; this.current.timingPointIndex++)
     {
         var current = this.TimingPoints[this.current.timingPointIndex],
             prev = this.TimingPoints[this.current.timingPointIndex - 1];
-        this.current.y += (current.time - prev.time) * prev.sliderVelocity;
+        this.current.scroll += (current.time - prev.time) * prev.sliderVelocity;
     }
     var current = this.TimingPoints[timingPointIndex];
-    var y = this.current.y + (time - current.time) * current.sliderVelocity;
+    var scroll = this.current.scroll + (time - current.time) * current.sliderVelocity;
 
     while (this.current.last + 1 < this.HitObjects.length &&
         time >= this.HitObjects[this.current.last + 1].time - 20000)
@@ -111,7 +114,7 @@ Mania.draw = function(time)
             continue;
         }
 
-        hitObject.draw(y);
+        hitObject.draw(scroll);
     }
     if (typeof this.current.pending !== 'undefined')
     {

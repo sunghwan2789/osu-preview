@@ -36,11 +36,11 @@ body {
     body > * {
         position: fixed;
     }
-    #speed, #control, #title {
+    #speed, #control, #title, #mania {
         background: rgba(0, 0, 0, .6);
         display: none;
     }
-    body.h #speed, body.h #control, body.h #title {
+    body.h #speed, body.h #control, body.h #title, body.h #mania.e {
         display: block;
     }
     #container {
@@ -76,6 +76,12 @@ body {
         #speed button:not(.e) {
             color: #666;
         }
+    #mania {
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        width: 40px;
+    }
     #control {
         bottom: 0;
         left: 0;
@@ -142,6 +148,7 @@ body {
     <div id="container"><canvas width="640" height="480"></canvas></div>
     <button id="play"></button>
     <div id="speed"><button value="1.5">DT</button><button class="e" value="1">-</button><button value="0.75">HT</button></div>
+    <div id="mania"><button value="1">+</button><button id="scroll">20</button><button value="-1">-</button></div>
     <div id="control"><input id="progress" type="range" min="0" max="0" value="0"><input id="volume" type="range" min="0" max="100" value="100"><button id="fullscreen">&#128187;</button></div>
     <div id="title"><img src="/_data/BloodCat.svg" width="20" height="30" alt="아까네코 종이모형"><a href="//osu.ppy.sh/b/" target="_blank">-</a><button id="share">&#10168;</button></div>
 
@@ -180,6 +187,8 @@ Player.loadBeatmap = function(id)
 {
     Player.ctx.restore();
     Player.ctx.save();
+
+    $('#mania').removeClass('e');
 
     Player.beatmap = undefined;
     $(Player.audio).trigger('pause')[0].pause();
@@ -255,16 +264,6 @@ Player.body.on('mousemove', function() {
             Player.body.removeClass('h');
         }
     }, Player.toggle));
-}).on('keydown', function(e) {
-    if (e.keyCode == 187 || e.keyCode == 189)
-    {
-        if (typeof Player.beatmap.scrollSpeed !== 'undefined')
-        {
-            // 187: =, 189: -
-            Player.beatmap.scrollSpeed += 188 - e.keyCode;
-            console.log(Player.beatmap.scrollSpeed);
-        }
-    }
 });
 $(Player.audio).on('pause', function() {
     Player.body.trigger('mousemove');
@@ -297,6 +296,16 @@ Player.volume.on('change', function() {
 $('button', Player.speed).on('click', function() {
     $('.e', Player.speed).removeClass('e');
     Player.audio.playbackRate = $(this).addClass('e').val();
+});
+$('#mania button').on('click', function()
+{
+    var val = $(this).val() | 0;
+    if (val)
+    {
+        Player.beatmap.scrollSpeed += val;
+        $('#mania #scroll').text(Player.beatmap.scrollSpeed);
+        Player.play();
+    }
 });
 Player.button.on('click', function(e) {
     e.preventDefault();
