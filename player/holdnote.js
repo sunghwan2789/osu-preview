@@ -10,10 +10,10 @@ HoldNote.id = 128;
 Mania.hitObjectTypes[HoldNote.id] = HoldNote;
 //HoldNote.prototype = Object.create(HitObject.prototype);
 //HoldNote.prototype.constructor = HoldNote;
-HoldNote.draw = function(time)
+HoldNote.draw = function(scroll)
 {
-    var sy = HitNote.calcY.call(this, time),
-        ey = HitNote.calcY.call(this, time, this.endTime);
+    var sy = HitNote.calcY.call(this, this.y, scroll),
+        ey = HitNote.calcY.call(this, this.endY, scroll);
 
     var w = Player.beatmap.columnWidth * 0.8;
     Player.ctx.beginPath();

@@ -9,21 +9,14 @@ HitNote.id = 1;
 Mania.hitObjectTypes[HitNote.id] = HitNote;
 //HitNote.prototype = Object.create(HitObject.prototype);
 //HitNote.prototype.constructor = HitNote;
-HitNote.calcY = function(y)
+HitNote.calcY = function(y, scroll)
 {
-    // Player.ctx.font = '20px Arial';
-    // Player.ctx.textBaseline = 'top';
-    // Player.ctx.fillText(Player.beatmap.timingPoint(time).bpm, 0, 60);
-    return Mania.HIT_POSITION - (this.y - y)
-        * Player.beatmap.scrollSpeed
-        ;
+    return Mania.HIT_POSITION - (y - scroll) * Player.beatmap.scrollSpeed * 0.035;
 };
-HitNote.draw = function(time, y)
+HitNote.draw = function(scroll)
 {
     Player.ctx.beginPath();
-    Player.ctx.rect(this.x, HitNote.calcY.call(this, y)
-        // + Player.beatmap.timingPoint(time).sliderVelocity * Player.beatmap.timingPoint(time).getBPM() * Player.beatmap.sliderSpeed,
-        , Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
+    Player.ctx.rect(this.x, HitNote.calcY.call(this, this.y, scroll), Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();
     Player.ctx.strokeStyle = '#ccc';

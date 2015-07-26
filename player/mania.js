@@ -6,7 +6,7 @@ function Mania()
     this.keyCount = this.CircleSize;
     this.columnSize = Beatmap.MAX_X / this.keyCount;
     this.columnWidth = 30;
-    this.scrollSpeed = 7;
+    this.scrollSpeed = 10;
 
     this.onload = Mania.onload;
     this.draw = Mania.draw;
@@ -26,7 +26,7 @@ Mania.COLUMN_START = 130;
 Mania.HIT_POSITION = 400;
 Mania.processHitObject = function(hitObject)
 {
-    if (typeof this.current.offset === 'undefined')
+    if (typeof this.current.colored === 'undefined')
     {
         for (var i = 0; i < this.keyCount; i++)
         {
@@ -41,19 +41,29 @@ Mania.processHitObject = function(hitObject)
         {
             this.Colors = this.Colors.slice(0, p).concat(this.Colors.slice(p - 1));
         }
-        this.current.offset = this.timingPointAt(0).time * 0.035;
+        this.current.colored = 1;
     }
     hitObject.color = this.Colors[hitObject.column];
     hitObject.x = this.columnWidth * hitObject.column;
-    hitObject.y = this.current.offset;
-    for (var i = 1; i < this.timingPointIndexAt(hitObject.time); i++)
+    hitObject.y = this.timingPointAt(0).time;
+    for (var i = 1; i <= this.timingPointIndexAt(hitObject.time); i++)
     {
         var current = this.TimingPoints[i],
             prev = this.TimingPoints[i - 1];
-        hitObject.y += (current.time - prev.time) * prev.sliderVelocity * 0.035;
+        hitObject.y += (current.time - prev.time) * prev.sliderVelocity;
     }
     var current = this.timingPointAt(hitObject.time);
-    hitObject.y += (hitObject.time - current.time) * current.sliderVelocity * 0.035;
+    hitObject.endY = hitObject.y;
+    hitObject.y += (hitObject.time - current.time) * current.sliderVelocity;
+
+    for (var i = this.timingPointIndexAt(hitObject.time) + 1; i <= this.timingPointIndexAt(hitObject.endTime); i++)
+    {
+        var current = this.TimingPoints[i],
+            prev = this.TimingPoints[i - 1];
+        hitObject.endY += (current.time - prev.time) * prev.sliderVelocity;
+    }
+    var current = this.timingPointAt(hitObject.endTime);
+    hitObject.endY += (hitObject.endTime - current.time) * current.sliderVelocity;
 };
 Mania.onload = function()
 {
@@ -66,21 +76,21 @@ Mania.draw = function(time)
         this.current.first = 0;
         this.current.last = -1;
         this.current.pending = undefined;
-        this.current.timingPointIndex = 0;
-        this.current.y = 0;
+        this.current.timingPointIndex = 1;
+        this.current.y = this.TimingPoints[0].time;
     }
     var timingPointIndex = this.timingPointIndexAt(time);
-    for (; this.current.timingPointIndex < timingPointIndex; this.current.timingPointIndex++)
+    for (; this.current.timingPointIndex <= timingPointIndex; this.current.timingPointIndex++)
     {
         var current = this.TimingPoints[this.current.timingPointIndex],
             prev = this.TimingPoints[this.current.timingPointIndex - 1];
-        this.current.y += (current.time - prev.time) * prev.sliderVelocity * 0.035;
+        this.current.y += (current.time - prev.time) * prev.sliderVelocity;
     }
     var current = this.TimingPoints[timingPointIndex];
-    var y = this.current.y + (time - current.time) * current.sliderVelocity * 0.035;
+    var y = this.current.y + (time - current.time) * current.sliderVelocity;
 
     while (this.current.last + 1 < this.HitObjects.length &&
-        time >= this.HitObjects[this.current.last + 1].time - 5000)
+        time >= this.HitObjects[this.current.last + 1].time - 20000)
     {
         this.current.last++;
     }
@@ -101,7 +111,7 @@ Mania.draw = function(time)
             continue;
         }
 
-        hitObject.draw(time, y);
+        hitObject.draw(y);
     }
     if (typeof this.current.pending !== 'undefined')
     {
@@ -160,9 +170,4 @@ Mania.processBG = function(ctx)
     ctx.stroke();
     ctx.fillStyle = '#568';
     ctx.fill();
-
-    ctx.fillStyle = '#09f';
-    ctx.font = '26px Arial';
-    ctx.textBaseline = 'top';
-    ctx.fillText('WIP', 5, 60);
 };
