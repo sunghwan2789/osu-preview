@@ -304,7 +304,10 @@ $('#mania button').on('click', function()
     {
         Player.beatmap.scrollSpeed += val;
         $('#mania #scroll').text(Player.beatmap.scrollSpeed);
-        Player.play();
+        if (Player.audio.paused)
+        {
+            Player.play();
+        }
     }
 });
 Player.button.on('click', function(e) {
