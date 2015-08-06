@@ -45,7 +45,7 @@ Mania.processHitObject = function(hitObject)
     }
     hitObject.color = this.Colors[hitObject.column];
     hitObject.x = this.columnWidth * hitObject.column;
-    hitObject.y = this.timingPointAt(0).time;
+    hitObject.y = this.timingPointAt(0).time * this.timingPointAt(0).sliderVelocity;
     for (var i = 1; i <= this.timingPointIndexAt(hitObject.time); i++)
     {
         var current = this.TimingPoints[i],
@@ -79,8 +79,8 @@ Mania.draw = function(time)
         this.current.first = 0;
         this.current.last = -1;
         this.current.pending = undefined;
-        this.current.timingPointIndex = 1;
-        this.current.scroll = Math.max(this.TimingPoints[0].time, 0);
+        this.current.timingPointIndex = this.timingPointIndexAt(0);
+        this.current.scroll = this.TimingPoints[this.current.timingPointIndex].time * this.TimingPoints[this.current.timingPointIndex].sliderVelocity;
     }
     var timingPointIndex = this.timingPointIndexAt(time);
     for (; this.current.timingPointIndex <= timingPointIndex; this.current.timingPointIndex++)
