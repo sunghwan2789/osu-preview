@@ -45,8 +45,9 @@ Mania.processHitObject = function(hitObject)
     }
     hitObject.color = this.Colors[hitObject.column];
     hitObject.x = this.columnWidth * hitObject.column;
-    hitObject.y = this.timingPointAt(0).time * this.timingPointAt(0).sliderVelocity;
-    for (var i = 1; i <= this.timingPointIndexAt(hitObject.time); i++)
+    var base = this.timingPointIndexAt(0);
+    hitObject.y = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
+    for (var i = base + 1; i <= this.timingPointIndexAt(hitObject.time); i++)
     {
         var current = this.TimingPoints[i],
             prev = this.TimingPoints[i - 1];
@@ -79,8 +80,9 @@ Mania.draw = function(time)
         this.current.first = 0;
         this.current.last = -1;
         this.current.pending = undefined;
-        this.current.timingPointIndex = this.timingPointIndexAt(0) + 1;
-        this.current.scroll = this.TimingPoints[this.current.timingPointIndex].time * this.TimingPoints[this.current.timingPointIndex].sliderVelocity;
+        var base = this.timingPointIndexAt(0);
+        this.current.timingPointIndex = base + 1;
+        this.current.scroll = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
     }
     var timingPointIndex = this.timingPointIndexAt(time);
     for (; this.current.timingPointIndex <= timingPointIndex; this.current.timingPointIndex++)
@@ -93,7 +95,7 @@ Mania.draw = function(time)
     var scroll = this.current.scroll + (time - current.time) * current.sliderVelocity;
 
     while (this.current.last + 1 < this.HitObjects.length &&
-        time >= this.HitObjects[this.current.last + 1].time - 20000)
+        time >= this.HitObjects[this.current.last + 1].time - 10000)
     {
         this.current.last++;
     }
