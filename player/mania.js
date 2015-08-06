@@ -79,7 +79,7 @@ Mania.draw = function(time)
         this.current.first = 0;
         this.current.last = -1;
         this.current.pending = undefined;
-        this.current.timingPointIndex = this.timingPointIndexAt(0);
+        this.current.timingPointIndex = this.timingPointIndexAt(0) + 1;
         this.current.scroll = this.TimingPoints[this.current.timingPointIndex].time * this.TimingPoints[this.current.timingPointIndex].sliderVelocity;
     }
     var timingPointIndex = this.timingPointIndexAt(time);
