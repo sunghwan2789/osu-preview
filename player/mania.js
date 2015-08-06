@@ -75,10 +75,9 @@ Mania.onload = function()
 };
 Mania.draw = function(time)
 {
-    if (typeof this.current.last === 'undefined')
+    if (typeof this.current.first === 'undefined')
     {
         this.current.first = 0;
-        this.current.last = -1;
         this.current.pending = undefined;
         var base = this.timingPointIndexAt(0);
         this.current.timingPointIndex = base + 1;
@@ -94,12 +93,7 @@ Mania.draw = function(time)
     var current = this.TimingPoints[timingPointIndex];
     var scroll = this.current.scroll + (time - current.time) * current.sliderVelocity;
 
-    while (this.current.last + 1 < this.HitObjects.length &&
-        time >= this.HitObjects[this.current.last + 1].time - 10000)
-    {
-        this.current.last++;
-    }
-    for (var i = this.current.first; i <= this.current.last; i++)
+    for (var i = this.current.first; i < this.HitObjects.length; i++)
     {
         var hitObject = this.HitObjects[i];
         if (hitObject.type.id == HoldNote.id &&
