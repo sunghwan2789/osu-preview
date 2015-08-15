@@ -61,7 +61,7 @@ Slider.parseCircumscribedCircle = function()
         y = ((l0 - l1) * -c + (l1 - l2) * a) / q,
         dx = this.points[0].x - x,
         dy = this.points[0].y - y,
-        r = Math.sqrt(dx * dx + dy * dy),
+        r = Math.hypot(dx, dy),
         base = Math.atan2(dy, dx),
         p = a ? (a < 0) ^ (c * b / a < d) : (b > 0) ^ (c > 0), // if l2 over l0l1 ? t > 0 : t < 0
         t = this.pixelLength / r * (p ? 1 : -1);
@@ -76,12 +76,10 @@ Slider.parseCircumscribedCircle = function()
     };
     this.pointAt = function(t, scaled)
     {
-        var angle = this.angle.base + this.angle.delta * t,
-            x = this.circle.x + Math.cos(angle) * this.circle.radius,
-            y = this.circle.y + Math.sin(angle) * this.circle.radius;
+        var angle = this.angle.base + this.angle.delta * t;
         return {
-            x: x,
-            y: y
+            x: this.circle.x + Math.cos(angle) * this.circle.radius,
+            y: this.circle.y + Math.sin(angle) * this.circle.radius
         };
     };
 
@@ -129,10 +127,7 @@ function CentripetalCatmullRom(points)
     var approxLength = 0;
     for (var i = 1; i < 4; i++)
     {
-        var dx = this.points[i].x - this.points[i - 1].x,
-            dy = this.points[i].y - this.points[i - 1].y,
-            len = Math.sqrt(dx * dx + dy * dy);
-        approxLength += len;
+        approxLength += Math.hypot(this.points[i].x - this.points[i - 1].x, this.points[i].y - this.points[i - 1].y);
     }
     Curve.call(this, approxLength / 2);
 }
@@ -196,10 +191,7 @@ function Bezier2(points)
     var approxLength = 0;
     for (var i = 1; i < this.points.length; i++)
     {
-        var dx = this.points[i].x - this.points[i - 1].x,
-            dy = this.points[i].y - this.points[i - 1].y,
-            len = Math.sqrt(dx * dx + dy * dy);
-        approxLength += len;
+        approxLength += Math.hypot(this.points[i].x - this.points[i - 1].x, this.points[i].y - this.points[i - 1].y);
     }
     Curve.call(this, approxLength);
 }
@@ -234,10 +226,7 @@ function Curve(approxLength)
     this.pointDistance = [ 0 ];
     for (var i = 1; i <= points; i++)
     {
-        var dx = this.path[i].x - this.path[i - 1].x,
-            dy = this.path[i].y - this.path[i - 1].y,
-            len = Math.sqrt(dx * dx + dy * dy);
-        this.pointDistance[i] = len;
+        this.pointDistance[i] = Math.hypot(this.path[i].x - this.path[i - 1].x, this.path[i].y - this.path[i - 1].y);
     }
 }
 Slider.parseEqualDistanceMultiCurve = function(curves)

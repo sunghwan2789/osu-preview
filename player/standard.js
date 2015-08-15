@@ -84,26 +84,20 @@ Standard.calcStacks = function()
                 continue;
             }
 
-            var dt = hitObject.time - hitObjectN.endTime;
-            if (dt > Standard.STACK_TIMEOUT * this.StackLeniency)
+            if (hitObject.time - hitObjectN.endTime > Standard.STACK_TIMEOUT * this.StackLeniency)
             {
                 break;
             }
 
-            var dx = hitObject.x - hitObjectN.endX,
-                dy = hitObject.y - hitObjectN.endY,
-                l = Math.sqrt(dx * dx + dy * dy);
+            var distance = Math.hypot(hitObject.x - hitObjectN.endX, hitObject.y - hitObjectN.endY);
             if (hitObjectN.type.id == Slider.id &&
-                l < Standard.STACK_LENIENCE)
+                distance < Standard.STACK_LENIENCE)
             {
                 var offset = hitObject.stack - hitObjectN.stack + 1;
                 for (var j = n + 1; j <= i; j++)
                 {
                     var hitObjectJ = this.HitObjects[j];
-                    dx = hitObjectJ.x - hitObjectN.endX;
-                    dy = hitObjectJ.y - hitObjectN.endY;
-                    l = Math.sqrt(dx * dx + dy * dy);
-                    if (l < Standard.STACK_LENIENCE)
+                    if (Math.hypot(hitObjectJ.x - hitObjectN.endX, hitObjectJ.y - hitObjectN.endY) < Standard.STACK_LENIENCE)
                     {
                         hitObjectJ.stack -= offset;
                     }
@@ -111,7 +105,7 @@ Standard.calcStacks = function()
                 break;
             }
 
-            if (l < Standard.STACK_LENIENCE)
+            if (distance < Standard.STACK_LENIENCE)
             {
                 hitObjectN.stack = hitObject.stack + 1;
                 hitObject = hitObjectN;
