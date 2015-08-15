@@ -33,7 +33,6 @@ function Beatmap(osu)
 Beatmap.modes = {};
 Beatmap.prototype = {
     hitObjectTypes: undefined,
-    hitObjectTypeMask: 0,
     processHitObject: undefined,
     onload: undefined,
     draw: undefined,
@@ -51,9 +50,9 @@ Beatmap.prototype.parse = function(osu)
     }
 
     var currentSection = undefined,
-        data = osu.replace(/\r\n?/g, '\n').split('\n').reverse(),
+        stream = osu.replace(/\r\n?/g, '\n').split('\n').reverse(),
         line = undefined;
-    while (typeof (line = data.pop()) !== 'undefined')
+    while (typeof (line = stream.pop()) !== 'undefined')
     {
         if (/^\/\//.test(line))
         {
@@ -70,22 +69,58 @@ Beatmap.prototype.parse = function(osu)
             case 'Metadata':
             case 'Difficulty':
             {
-                this.parsePair(line);
+                // let [key, value] = line.split(':', 2);
+                var data = line.split(':'),
+                    key = data.shift(),
+                    value = data.join(':');
+                if (key in this)
+                {
+                    this[key] = parseFloat(value) == value ? +value : value;
+                }
                 break;
             }
             case 'TimingPoints':
             {
-                this.parseTimingPoint(line);
+                try
+                {
+                    this.TimingPoints.push(new TimingPoint(line));
+                }
+                catch (e) {}
                 break;
             }
             case 'Colours':
             {
-                this.parseColor(line);
+                // let [key, value] = line.split(':');
+                var data = line.split(':');
+                if (/^Combo\d+/.test(data[0]))
+                {
+                    this.Colors.push('rgb(' + data[1] + ')');
+                }
                 break;
             }
             case 'HitObjects':
             {
-                this.parseHitObject(line);
+                if (typeof this.hitObjectTypes === 'undefined')
+                {
+                    var mode = Beatmap.modes[this.Mode];
+                    // **********************************************
+                    if (typeof mode === 'undefined')
+                    {
+                        throw 'we do not support this beatmap mode';
+                    }
+                    // **********************************************
+                    mode.call(this);
+                }
+                try
+                {
+                    var hitObject = new HitObject(line);
+                    if (typeof this.processHitObject !== 'undefined')
+                    {
+                        this.processHitObject(hitObject);
+                    }
+                    this.HitObjects.push(hitObject);
+                }
+                catch (e) {}
                 break;
             }
         }
@@ -93,60 +128,6 @@ Beatmap.prototype.parse = function(osu)
     if (typeof this.onload !== 'undefined')
     {
         this.onload();
-    }
-};
-Beatmap.prototype.parsePair = function(line)
-{
-    var data = line.split(':'),
-        key = data[0],
-        value = data.slice(1).join(':');
-    if (key in this)
-    {
-        this[key] = parseFloat(value) == value ? +value : value;
-    }
-};
-Beatmap.prototype.parseTimingPoint = function(line)
-{
-    var timingPoint = new TimingPoint(line);
-    if (typeof timingPoint.time !== 'undefined')
-    {
-        this.TimingPoints.push(timingPoint);
-    }
-};
-Beatmap.prototype.parseColor = function(line)
-{
-    var data = line.split(':');
-    if (typeof data[1] !== 'undefined' &&
-        /Combo\d+/.test(data[0]))
-    {
-        this.Colors.push('rgb(' + data[1] + ')');
-    }
-};
-Beatmap.prototype.parseHitObject = function(line)
-{
-    if (typeof this.hitObjectTypes === 'undefined')
-    {
-        var mode = Beatmap.modes[this.Mode];
-        // **********************************************
-        if (typeof mode === 'undefined')
-        {
-            throw 'we do not support this beatmap mode';
-        }
-        // **********************************************
-        mode.call(this);
-        this.hitObjectTypeMask = Object.keys(this.hitObjectTypes).reduce(function(a, b)
-        {
-            return a | b;
-        });
-    }
-    var hitObject = new HitObject(line);
-    if (typeof hitObject.type !== 'undefined')
-    {
-        if (typeof this.processHitObject !== 'undefined')
-        {
-            this.processHitObject(hitObject);
-        }
-        this.HitObjects.push(hitObject);
     }
 };
 Beatmap.prototype.timingPointIndexAt = function(time)

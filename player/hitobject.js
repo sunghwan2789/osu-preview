@@ -3,7 +3,7 @@ function HitObject(line)
     var data = line.split(',');
     if (data.length < 5)
     {
-        return;
+        throw 'invalid data';
     }
 
     this.x = data[0] | 0;
@@ -11,7 +11,14 @@ function HitObject(line)
     this.time = data[2] | 0;
     this.flag = data[3] | 0;
 
-    var type = Player.beatmap.hitObjectTypes[this.flag & Player.beatmap.hitObjectTypeMask];
+    if (typeof Player.beatmap.current.mask === 'undefined')
+    {
+        Player.beatmap.current.mask = Object.keys(Player.beatmap.hitObjectTypes).reduce(function(a, b)
+        {
+            return a | b;
+        });
+    }
+    var type = Player.beatmap.hitObjectTypes[this.flag & Player.beatmap.current.mask];
     if (typeof type !== 'undefined')
     {
         this.type = type;

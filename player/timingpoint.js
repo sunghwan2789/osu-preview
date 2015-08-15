@@ -3,7 +3,7 @@ function TimingPoint(line)
     var data = line.split(',');
     if (data.length < 2)
     {
-        return;
+        throw 'invalid data';
     }
 
     this.time = data[0] | 0;
