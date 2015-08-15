@@ -70,9 +70,9 @@ Beatmap.prototype.parse = function(osu)
             case 'Difficulty':
             {
                 // let [key, value] = line.split(':', 2);
-                var data = line.split(':'),
-                    key = data.shift(),
-                    value = data.join(':');
+                var data = line.split(':', 2),
+                    key = data[0],
+                    value = data[1];
                 if (key in this)
                 {
                     this[key] = parseFloat(value) == value ? +value : value;
