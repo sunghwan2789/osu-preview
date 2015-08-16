@@ -293,11 +293,7 @@ Slider.parseEqualDistanceMultiCurve = function(curves)
     {
         var indexF = this.path.length * t,
             index = indexF | 0;
-        if (index + 1 >= this.path.length)
-        {
-            return this.path[this.path.length - 1];
-        }
-        else
+        if (index + 1 < this.path.length)
         {
             var p1 = this.path[index],
                 p2 = this.path[index + 1],
@@ -306,6 +302,10 @@ Slider.parseEqualDistanceMultiCurve = function(curves)
                 x: p1.x + (p2.x - p1.x) * t2,
                 y: p1.y + (p2.y - p1.y) * t2
             };
+        }
+        else
+        {
+            return this.path[this.path.length - 1];
         }
     };
 };
