@@ -248,7 +248,7 @@ Slider.parseEqualDistanceMultiCurve = function(curves)
     // for each distance, try to get in between the two points that are between it
     for (var i = 0; i <= nCurve; i++)
     {
-        var prefDistance = i * Slider.CURVE_LENGTH;
+        var prefDistance = i * this.pixelLength / nCurve | 0;
         while (distanceAt < prefDistance)
         {
             lastDistanceAt = distanceAt;
