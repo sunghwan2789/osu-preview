@@ -6,7 +6,7 @@ function Standard()
     var ar = this.ApproachRate || this.OverallDifficulty;
     this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
     this.circleDiameter = 104 - this.CircleSize * 8;
-    this.stackOffset = this.circleDiameter * Standard.STACK_OFFSET_MODIFIER;
+    this.stackOffset = this.circleDiameter / 20;
 
     this.onload = Standard.onload;
     this.draw = Standard.draw;
@@ -59,8 +59,6 @@ Standard.processHitObject = function(hitObject)
     hitObject.color = this.Colors[this.current.comboIndex];
 };
 Standard.STACK_LENIENCE = 3;
-Standard.STACK_TIMEOUT = 1000;
-Standard.STACK_OFFSET_MODIFIER = 0.05;
 Standard.calcStacks = function()
 {
     // https://gist.github.com/peppy/1167470
@@ -83,30 +81,27 @@ Standard.calcStacks = function()
             {
                 continue;
             }
-
-            if (hitObject.time - hitObjectN.endTime > Standard.STACK_TIMEOUT * this.StackLeniency)
+            if (hitObject.time - hitObjectN.endTime > this.approachTime * this.StackLeniency)
             {
                 break;
             }
 
-            var distance = Math.hypot(hitObject.x - hitObjectN.endX, hitObject.y - hitObjectN.endY);
-            if (hitObjectN.type.id == Slider.id &&
-                distance < Standard.STACK_LENIENCE)
+            if (Math.hypot(hitObject.x - hitObjectN.endX, hitObject.y - hitObjectN.endY) < Standard.STACK_LENIENCE)
             {
-                var offset = hitObject.stack - hitObjectN.stack + 1;
-                for (var j = n + 1; j <= i; j++)
+                if (hitObjectN.type.id == Slider.id)
                 {
-                    var hitObjectJ = this.HitObjects[j];
-                    if (Math.hypot(hitObjectJ.x - hitObjectN.endX, hitObjectJ.y - hitObjectN.endY) < Standard.STACK_LENIENCE)
+                    var offset = hitObject.stack - hitObjectN.stack + 1;
+                    for (var j = n + 1; j <= i; j++)
                     {
-                        hitObjectJ.stack -= offset;
+                        var hitObjectJ = this.HitObjects[j];
+                        if (Math.hypot(hitObjectJ.x - hitObjectN.endX, hitObjectJ.y - hitObjectN.endY) < Standard.STACK_LENIENCE)
+                        {
+                            hitObjectJ.stack -= offset;
+                        }
                     }
+                    break;
                 }
-                break;
-            }
 
-            if (distance < Standard.STACK_LENIENCE)
-            {
                 hitObjectN.stack = hitObject.stack + 1;
                 hitObject = hitObjectN;
             }
