@@ -33,7 +33,7 @@ function Slider(data)
     }
     else
     {
-        Slider.parseLinearBezier.call(this, this.sliderType == 'L');
+        Slider.parseBezierCurve.call(this);
     }
     var path = this.path.slice(0, 2);
     this.startAngle = Math.atan2(path[1].y - path[0].y, path[1].x - path[0].x);
@@ -102,27 +102,34 @@ Slider.parseCatmullCurve = function()
     for (var i = 0; i < this.points.length; i++)
     {
         points.push(this.points[i]);
-        if (points.length == 4)
+        try
         {
             catmulls.push(new CentripetalCatmullRom(points));
             points.shift();
         }
+        catch (e) {}
     }
     var point2 = this.points.slice(-2);
     if (point2[0].x != point2[1].x || point2[0].y != point2[1].y)
     {
-        points.push(this.points.slice(-1));
+        points.push(point2[1]);
     }
-    if (points.length == 4)
+    try
     {
         catmulls.push(new CentripetalCatmullRom(points));
     }
+    catch (e) {}
     Slider.parseEqualDistanceMultiCurve.call(this, catmulls);
 };
 function CentripetalCatmullRom(points)
 {
     // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/CentripetalCatmullRom.java
     // needs 4 points
+    if (points.length != 4)
+    {
+        throw 'invalid data';
+    }
+
     this.points = points;
     var approxLength = 0;
     for (var i = 1; i < 4; i++)
@@ -148,45 +155,42 @@ CentripetalCatmullRom.prototype.pointAt = function(t, p)
         y: this.pointAt(t, 'y')
     };
 };
-Slider.parseLinearBezier = function(line)
+Slider.parseBezierCurve = function()
 {
     // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/LinearBezier.java
     var beziers = [],
         points = [],
-        last = undefined;
+        last = {};
     for (var i = 0; i < this.points.length; i++)
     {
         var point = this.points[i];
-        if (line)
+        if (point.x == last.x && point.y == last.y)
         {
-            if (typeof last !== 'undefined')
-            {
-                points.push(point);
-                beziers.push(new Bezier2(points));
-                points = [];
-            }
-        }
-        else if (typeof last !== 'undefined' &&
-            point.x == last.x && point.y == last.y)
-        {
-            if (points.length >= 2)
+            try
             {
                 beziers.push(new Bezier2(points));
             }
+            catch (e) {}
             points = [];
         }
         points.push(point);
         last = point;
     }
-    if (!line && points.length >= 2)
+    try
     {
         beziers.push(new Bezier2(points));
     }
+    catch (e) {}
     Slider.parseEqualDistanceMultiCurve.call(this, beziers);
 };
 function Bezier2(points)
 {
     // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/Bezier2.java
+    if (points.length < 2)
+    {
+        throw 'invalid data';
+    }
+
     this.points = points;
     var approxLength = 0;
     for (var i = 1; i < this.points.length; i++)
@@ -223,10 +227,10 @@ function Curve(approxLength)
         this.path[i] = this.pointAt(i / points);
     }
 
-    this.pointDistance = [ 0 ];
+    this.distance = [ 0 ];
     for (var i = 1; i <= points; i++)
     {
-        this.pointDistance[i] = Math.hypot(this.path[i].x - this.path[i - 1].x, this.path[i].y - this.path[i - 1].y);
+        this.distance[i] = Math.hypot(this.path[i].x - this.path[i - 1].x, this.path[i].y - this.path[i - 1].y);
     }
 }
 Slider.parseEqualDistanceMultiCurve = function(curves)
@@ -267,7 +271,7 @@ Slider.parseEqualDistanceMultiCurve = function(curves)
                     }
                 }
             }
-            distanceAt += curve.pointDistance[pointIndex];
+            distanceAt += curve.distance[pointIndex];
         }
         var endPoint = curve.path[pointIndex];
 
@@ -287,12 +291,11 @@ Slider.parseEqualDistanceMultiCurve = function(curves)
     }
     this.pointAt = function(t)
     {
-        var nCurve = this.path.length - 1,
-            indexF = t * (nCurve + 1),
+        var indexF = this.path.length * t,
             index = indexF | 0;
-        if (index >= nCurve)
+        if (index + 1 >= this.path.length)
         {
-            return this.path[nCurve];
+            return this.path[this.path.length - 1];
         }
         else
         {
