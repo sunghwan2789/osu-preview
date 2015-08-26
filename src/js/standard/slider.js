@@ -1,8 +1,8 @@
 function Slider(data)
 {
-    HitCircle.call(this);
+    HitCircle.call(this, data);
 
-    var points = data[0].split('|');
+    var points = data[5].split('|');
     this.sliderType = points[0];
     for (var i = 1; i < points.length; i++)
     {
@@ -12,9 +12,9 @@ function Slider(data)
             y: point[1] | 0
         };
     }
-    this.points = [ this ].concat(points.slice(1));
-    this.repeat = data[1] | 0;
-    this.pixelLength = +data[2];
+    this.points = [this].concat(points.slice(1));
+    this.repeat = data[6] | 0;
+    this.pixelLength = +data[7];
 
     var speed = 100 / Player.beatmap.timingPointAt(this.time).beatLength *
             Player.beatmap.SliderMultiplier;
@@ -41,13 +41,11 @@ function Slider(data)
     this.endAngle = Math.atan2(path[0].y - path[1].y, path[0].x - path[1].x);
     this.endX = path[1].x;
     this.endY = path[1].y;
-
-    this.draw = Slider.draw;
 }
+Slider.prototype = Object.create(HitCircle.prototype);
+Slider.prototype.constructor = Slider;
 Slider.id = 2;
-Standard.hitObjectTypes[Slider.id] = Slider;
-//Slider.prototype = Object.create(HitCircle.prototype);
-//Slider.prototype.constructor = Slider;
+Standard.prototype.hitObjectTypes[Slider.id] = Slider;
 Slider.CURVE_LENGTH = 5;
 Slider.parseCircumscribedCircle = function()
 {
@@ -313,7 +311,7 @@ Slider.FADE_IN_TIME = 375;
 Slider.FADE_OUT_TIME = 200;
 Slider.REVERSE_ARROW = String.fromCharCode(10132);
 Slider.OPACITY = 0.66;
-Slider.draw = function(time)
+Slider.prototype.draw = function(time)
 {
     var dt = this.time - time,
         opacity = 1;
@@ -327,35 +325,35 @@ Slider.draw = function(time)
     }
     Player.ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
 
-    Slider.drawPath.call(this);
-    HitCircle.drawCircle.call(this, this.endX, this.endY);
-    HitCircle.drawCircle.call(this, this.x, this.y);
+    this.drawPath();
+    this.drawCircle(this.endX, this.endY);
+    this.drawCircle(this.x, this.y);
 
     var repeat = -dt * this.repeat / this.duration;
     if (this.repeat > 1 && repeat <= this.repeat - 1 - this.repeat % 2)
     {
-        HitCircle.drawText.call(this, this.endX, this.endY, Slider.REVERSE_ARROW, this.endAngle);
+        this.drawText(this.endX, this.endY, Slider.REVERSE_ARROW, this.endAngle);
     }
     if (repeat > 0 &&
         repeat <= this.repeat - 1 - (this.repeat + 1) % 2)
     {
-        HitCircle.drawText.call(this, this.x, this.y, Slider.REVERSE_ARROW, this.startAngle);
+        this.drawText(this.x, this.y, Slider.REVERSE_ARROW, this.startAngle);
     }
     else if (dt >= 0)
     {
-        HitCircle.drawText.call(this, this.x, this.y, this.combo);
+        this.drawText(this.x, this.y, this.combo);
     }
 
     if (dt >= 0)
     {
-        HitCircle.drawApproach.call(this, dt);
+        this.drawApproach(dt);
     }
     else if (time < this.endTime)
     {
-        Slider.drawFollowCircle.call(this, repeat);
+        this.drawFollowCircle(repeat);
     }
 };
-Slider.drawPath = function()
+Slider.prototype.drawPath = function()
 {
     Player.ctx.save();
     // Slider
@@ -378,7 +376,7 @@ Slider.drawPath = function()
     Player.ctx.stroke();
     Player.ctx.restore();
 };
-Slider.drawFollowCircle = function(repeat)
+Slider.prototype.drawFollowCircle = function(repeat)
 {
     repeat %= 2;
     if (repeat > 1)

@@ -1,5 +1,7 @@
-function HitCircle()
+function HitCircle(data)
 {
+    HitObject.call(this, data);
+
     this.newCombo = this.flag & 4;
     this.comboSkip = this.flag >> 4;
 
@@ -8,16 +10,14 @@ function HitCircle()
     this.endTime = this.time;
 
     this.stack = 0;
-
-    this.draw = HitCircle.draw;
 }
+HitCircle.prototype = Object.create(HitObject.prototype);
+HitCircle.prototype.constructor = HitCircle;
 HitCircle.id = 1;
-Standard.hitObjectTypes[HitCircle.id] = HitCircle;
-//HitCircle.prototype = Object.create(HitObject.prototype);
-//HitCircle.prototype.constructor = HitCircle;
+Standard.prototype.hitObjectTypes[HitCircle.id] = HitCircle;
 HitCircle.FADE_IN_TIME = 375;
 HitCircle.FADE_OUT_TIME = 200;
-HitCircle.draw = function(time)
+HitCircle.prototype.draw = function(time)
 {
     var dt = this.time - time,
         opacity = 1;
@@ -31,14 +31,14 @@ HitCircle.draw = function(time)
     }
     Player.ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
 
-    HitCircle.drawCircle.call(this, this.x, this.y);
-    HitCircle.drawText.call(this, this.x, this.y, this.combo);
+    this.drawCircle(this.x, this.y);
+    this.drawText(this.x, this.y, this.combo);
     if (dt >= 0)
     {
-        HitCircle.drawApproach.call(this, dt);
+        this.drawApproach(dt);
     }
 };
-HitCircle.drawCircle = function(x, y)
+HitCircle.prototype.drawCircle = function(x, y)
 {
     // HitCircle
     Player.ctx.beginPath();
@@ -52,7 +52,7 @@ HitCircle.drawCircle = function(x, y)
     Player.ctx.lineWidth = Player.beatmap.circleBorder;
     Player.ctx.stroke();
 };
-HitCircle.drawText = function(x, y, text, deg)
+HitCircle.prototype.drawText = function(x, y, text, deg)
 {
     Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
     Player.ctx.fillStyle = '#fff';
@@ -65,7 +65,7 @@ HitCircle.drawText = function(x, y, text, deg)
     Player.ctx.fillText(text, 0, 0);
     Player.ctx.restore();
 };
-HitCircle.drawApproach = function(dt)
+HitCircle.prototype.drawApproach = function(dt)
 {
     var scale = 1 + dt / Player.beatmap.approachTime * 3;
     Player.ctx.beginPath();

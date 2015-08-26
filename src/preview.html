@@ -218,8 +218,10 @@ Player.loadBeatmap = function(id)
     $.get('b/' + id).done(function(osu) {
         try
         {
-            Player.beatmap = new Beatmap();
-            Player.beatmap.parse(osu);
+            // Player.beatmap = new Beatmap();
+            // Player.beatmap.parse(osu);
+            Player.beatmap = Beatmap.parse(osu);
+            Player.beatmap.load();
             $('a', Player.title).text(Player.beatmap.toString());
             $(new Image()).on('load', function() {
                 Player.beatmap.makeBG(this);

@@ -1,4 +1,14 @@
-function HitObject(line)
+function HitObject(data)
+{
+    this.x = data[0] | 0;
+    this.y = data[1] | 0;
+    this.time = data[2] | 0;
+    this.flag = data[3] | 0;
+}
+HitObject.prototype = {
+    draw: undefined
+};
+HitObject.parse = function(line)
 {
     var data = line.split(',');
     if (data.length < 5)
@@ -6,25 +16,12 @@ function HitObject(line)
         throw 'invalid data';
     }
 
-    this.x = data[0] | 0;
-    this.y = data[1] | 0;
-    this.time = data[2] | 0;
-    this.flag = data[3] | 0;
+    var type = data[3] & Player.beatmap.current.mask;
+    if (!(type in Player.beatmap.hitObjectTypes))
+    {
+        // throw 'we do not support this hitobject type';
+        return new HitObject(data);
+    }
 
-    if (typeof Player.beatmap.current.mask === 'undefined')
-    {
-        Player.beatmap.current.mask = Object.keys(Player.beatmap.hitObjectTypes).reduce(function(a, b)
-        {
-            return a | b;
-        });
-    }
-    var type = Player.beatmap.hitObjectTypes[this.flag & Player.beatmap.current.mask];
-    if (typeof type !== 'undefined')
-    {
-        this.type = type;
-        this.type.call(this, data.slice(5));
-    }
-}
-HitObject.prototype = {
-    draw: undefined
+    return new Player.beatmap.hitObjectTypes[type](data);
 };

@@ -1,19 +1,17 @@
 function HoldNote(data)
 {
-    HitNote.call(this);
+    HitNote.call(this, data);
 
-    this.endTime = data[0].split(':')[0] | 0;
-
-    this.draw = HoldNote.draw;
+    this.endTime = data[5].split(':')[0] | 0;
 }
+HoldNote.prototype = Object.create(HitNote.prototype);
+HoldNote.prototype.constructor = HoldNote;
 HoldNote.id = 128;
-Mania.hitObjectTypes[HoldNote.id] = HoldNote;
-//HoldNote.prototype = Object.create(HitObject.prototype);
-//HoldNote.prototype.constructor = HoldNote;
-HoldNote.draw = function(scroll)
+Mania.prototype.hitObjectTypes[HoldNote.id] = HoldNote;
+HoldNote.prototype.draw = function(scroll)
 {
-    var sy = HitNote.calcY.call(this, this.y, scroll),
-        ey = HitNote.calcY.call(this, this.endY, scroll);
+    var sy = this.calcY(this.y, scroll),
+        ey = this.calcY(this.endY, scroll);
 
     var w = Player.beatmap.columnWidth * 0.8;
     Player.ctx.beginPath();

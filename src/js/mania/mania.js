@@ -1,22 +1,12 @@
-function Mania()
+function Mania(osu)
 {
-    this.hitObjectTypes = Mania.hitObjectTypes;
-    this.processHitObject = Mania.processHitObject;
-
-    this.keyCount = this.CircleSize;
-    this.columnSize = Beatmap.MAX_X / this.keyCount;
-    this.columnWidth = 30;
-    this.scrollSpeed = 20;
-
-    this.onload = Mania.onload;
-    this.draw = Mania.draw;
-    this.processBG = Mania.processBG;
+    Beatmap.call(this, osu);
 }
+Mania.prototype = Object.create(Beatmap.prototype);
+Mania.prototype.costructor = Mania;
+Mania.prototype.hitObjectTypes = {};
 Mania.id = 3;
-Mania.hitObjectTypes = {};
 Beatmap.modes[Mania.id] = Mania;
-//Mania.prototype = Object.create(Beatmap.prototype);
-//Mania.prototype.costructor = Mania;
 Mania.DEFAULT_COLORS = [
     '#5bf',
     '#ccc',
@@ -24,7 +14,17 @@ Mania.DEFAULT_COLORS = [
 ];
 Mania.COLUMN_START = 130;
 Mania.HIT_POSITION = 400;
-Mania.processHitObject = function(hitObject)
+Mania.prototype.onsectionchange = function(now, prev)
+{
+    if (now == 'HitObjects')
+    {
+        this.keyCount = this.CircleSize;
+        this.columnSize = Beatmap.MAX_X / this.keyCount;
+        this.columnWidth = 30;
+        this.scrollSpeed = 20;
+    }
+};
+Mania.prototype.processHitObject = function(hitObject)
 {
     if (typeof this.current.colored === 'undefined')
     {
@@ -66,14 +66,14 @@ Mania.processHitObject = function(hitObject)
     var current = this.timingPointAt(hitObject.endTime);
     hitObject.endY += (hitObject.endTime - current.time) * current.sliderVelocity;
 };
-Mania.onload = function()
+Mania.prototype.onload = function()
 {
     Player.ctx.translate(Mania.COLUMN_START, 0);
 
     $('#mania').addClass('e');
     $('#scroll').text(this.scrollSpeed);
 };
-Mania.draw = function(time)
+Mania.prototype.draw = function(time)
 {
     if (typeof this.current.first === 'undefined')
     {
@@ -83,6 +83,10 @@ Mania.draw = function(time)
         var base = this.timingPointIndexAt(0);
         this.current.timingPointIndex = base + 1;
         this.current.scroll = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
+        if (typeof HoldNote === 'undefined')
+        {
+            HoldNote = Object;
+        }
     }
     var timingPointIndex = this.timingPointIndexAt(time);
     for (; this.current.timingPointIndex <= timingPointIndex; this.current.timingPointIndex++)
@@ -102,7 +106,7 @@ Mania.draw = function(time)
     for (var i = this.current.first; i <= this.current.last; i++)
     {
         var hitObject = this.HitObjects[i];
-        if (hitObject.type.id == HoldNote.id &&
+        if (hitObject instanceof HoldNote &&
             typeof this.current.pending === 'undefined')
         {
             this.current.pending = {
@@ -131,7 +135,7 @@ Mania.draw = function(time)
     }
     Player.ctx.clearRect(0, Mania.HIT_POSITION, Beatmap.WIDTH, Beatmap.HEIGHT - Mania.HIT_POSITION);
 };
-Mania.processBG = function(ctx)
+Mania.prototype.processBG = function(ctx)
 {
     ctx.beginPath();
     ctx.rect(Mania.COLUMN_START, 0, this.columnWidth * this.keyCount, Beatmap.HEIGHT);

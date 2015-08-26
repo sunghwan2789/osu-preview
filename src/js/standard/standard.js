@@ -1,29 +1,19 @@
-function Standard()
+function Standard(osu)
 {
-    this.hitObjectTypes = Standard.hitObjectTypes;
-    this.processHitObject = Standard.processHitObject;
-
-    var ar = this.ApproachRate || this.OverallDifficulty;
-    this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
-    this.circleDiameter = 104 - this.CircleSize * 8;
-    this.stackOffset = this.circleDiameter / 20;
-
-    this.onload = Standard.onload;
-    this.draw = Standard.draw;
-    this.processBG = Standard.processBG;
+    Beatmap.call(this, osu);
 }
+Standard.prototype = Object.create(Beatmap.prototype);
+Standard.prototype.costructor = Standard;
+Standard.prototype.hitObjectTypes = {};
 Standard.id = 0;
-Standard.hitObjectTypes = {};
 Beatmap.modes[Standard.id] = Standard;
-//Standard.prototype = Object.create(Beatmap.prototype);
-//Standard.prototype.costructor = Standard;
 Standard.DEFAULT_COLORS = [
     'rgb(0,202,0)',
     'rgb(18,124,255)',
     'rgb(242,24,57)',
     'rgb(255,292,0)'
 ];
-Standard.processHitObject = function(hitObject)
+Standard.prototype.processHitObject = function(hitObject)
 {
     if (typeof this.current.combo === 'undefined')
     {
@@ -40,10 +30,10 @@ Standard.processHitObject = function(hitObject)
         this.current.setComboIndex = 1;
         if (typeof Spinner === 'undefined')
         {
-            window.Spinner = {};
+            Spinner = Object;
         }
     }
-    if (hitObject.type.id == Spinner.id)
+    if (hitObject instanceof Spinner)
     {
         this.current.setComboIndex = 1;
     }
@@ -59,17 +49,17 @@ Standard.processHitObject = function(hitObject)
     hitObject.color = this.Colors[this.current.comboIndex];
 };
 Standard.STACK_LENIENCE = 3;
-Standard.calcStacks = function()
+Standard.prototype.calcStacks = function()
 {
     // https://gist.github.com/peppy/1167470
     if (typeof Slider === 'undefined')
     {
-        window.Slider = {};
+        Slider = Object;
     }
     for (var i = this.HitObjects.length - 1; i > 0; i--)
     {
         var hitObject = this.HitObjects[i];
-        if (hitObject.stack != 0 || hitObject.type.id == Spinner.id)
+        if (hitObject.stack != 0 || hitObject instanceof Spinner)
         {
             continue;
         }
@@ -77,10 +67,11 @@ Standard.calcStacks = function()
         for (var n = i - 1; n >= 0; n--)
         {
             var hitObjectN = this.HitObjects[n];
-            if (hitObjectN.type.id == Spinner.id)
+            if (hitObjectN instanceof Spinner)
             {
                 continue;
             }
+
             if (hitObject.time - hitObjectN.endTime > this.approachTime * this.StackLeniency)
             {
                 break;
@@ -88,7 +79,7 @@ Standard.calcStacks = function()
 
             if (Math.hypot(hitObject.x - hitObjectN.endX, hitObject.y - hitObjectN.endY) < Standard.STACK_LENIENCE)
             {
-                if (hitObjectN.type.id == Slider.id)
+                if (hitObjectN instanceof Slider)
                 {
                     var offset = hitObject.stack - hitObjectN.stack + 1;
                     for (var j = n + 1; j <= i; j++)
@@ -108,9 +99,14 @@ Standard.calcStacks = function()
         }
     }
 };
-Standard.onload = function()
+Standard.prototype.onload = function()
 {
-    Standard.calcStacks.call(this);
+    var ar = this.ApproachRate || this.OverallDifficulty;
+    this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
+    this.circleDiameter = 104 - this.CircleSize * 8;
+    this.stackOffset = this.circleDiameter / 20;
+
+    this.calcStacks();
 
     this.circleRadius = this.circleDiameter / 2;
     this.circleBorder = this.circleRadius / 8;
@@ -123,7 +119,7 @@ Standard.onload = function()
     Player.ctx.textBaseline = 'middle';
     Player.ctx.translate((Beatmap.WIDTH - Beatmap.MAX_X) / 2, (Beatmap.HEIGHT - Beatmap.MAX_Y) / 2);
 };
-Standard.draw = function(time)
+Standard.prototype.draw = function(time)
 {
     if (typeof this.current.first === 'undefined')
     {
@@ -138,7 +134,7 @@ Standard.draw = function(time)
     for (var i = this.current.last; i >= this.current.first; i--)
     {
         var hitObject = this.HitObjects[i];
-        if (time > hitObject.endTime + hitObject.type.FADE_OUT_TIME)
+        if (time > hitObject.endTime + hitObject.__proto__.constructor.FADE_OUT_TIME)
         {
             this.current.first = i + 1;
             break;

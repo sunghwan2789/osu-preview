@@ -1,7 +1,13 @@
 function Beatmap(osu)
 {
     // for temporary vars that need for drawing
-    this.current = {};
+    this.current = {
+        stream: osu.replace(/\r\n?/g, '\n').split('\n').reverse(),
+        mask: Object.keys(this.hitObjectTypes).reduce(function(a, b)
+        {
+            return a | b;
+        })
+    };
 
     // [General]
     this.Mode = 0;
@@ -30,9 +36,9 @@ function Beatmap(osu)
     // [HitObjects]
     this.HitObjects = [];
 }
-Beatmap.modes = {};
 Beatmap.prototype = {
     hitObjectTypes: undefined,
+    onsectionchange: undefined,
     processHitObject: undefined,
     onload: undefined,
     draw: undefined,
@@ -42,27 +48,46 @@ Beatmap.WIDTH = 640;
 Beatmap.HEIGHT = 480;
 Beatmap.MAX_X = 512;
 Beatmap.MAX_Y = 384;
-Beatmap.prototype.parse = function(osu)
+Beatmap.modes = {};
+Beatmap.parse = function(osu)
 {
     if (!/^osu/.test(osu))
     {
         throw 'target is not a beatmap file';
     }
 
-    var currentSection = undefined,
-        stream = osu.replace(/\r\n?/g, '\n').split('\n').reverse(),
-        line = undefined;
-    while (typeof (line = stream.pop()) !== 'undefined')
+    // default mode is standard(id: 0)
+    var mode = +((osu.match(/[\r\n]Mode.*?:(.*?)[\r\n]/) || [])[1]) || 0;
+    if (!(mode in Beatmap.modes))
     {
+        throw 'we do not support this beatmap mode';
+    }
+
+    return new Beatmap.modes[mode](osu);
+};
+Beatmap.prototype.load = function()
+{
+    var currentSection = undefined,
+        line = undefined;
+    while (typeof (line = this.current.stream.pop()) !== 'undefined')
+    {
+        // skip comments
         if (/^\/\//.test(line))
         {
             continue;
         }
+
         if (/^\[/.test(line))
         {
-            currentSection = line.slice(1, line.indexOf(']'));
+            var section = line.slice(1, line.indexOf(']'));
+            if (typeof this.onsectionchange !== 'undefined')
+            {
+                this.onsectionchange(section, currentSection);
+            }
+            currentSection = section;
             continue;
         }
+
         switch (currentSection)
         {
             case 'General':
@@ -100,20 +125,9 @@ Beatmap.prototype.parse = function(osu)
             }
             case 'HitObjects':
             {
-                if (typeof this.hitObjectTypes === 'undefined')
-                {
-                    var mode = Beatmap.modes[this.Mode];
-                    // **********************************************
-                    if (typeof mode === 'undefined')
-                    {
-                        throw 'we do not support this beatmap mode';
-                    }
-                    // **********************************************
-                    mode.call(this);
-                }
                 try
                 {
-                    var hitObject = new HitObject(line);
+                    var hitObject = HitObject.parse(line);
                     if (typeof this.processHitObject !== 'undefined')
                     {
                         this.processHitObject(hitObject);
