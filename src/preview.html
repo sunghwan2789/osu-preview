@@ -163,18 +163,21 @@ Math.hypot = Math.hypot || function(a, b)
 };
     </script>
 
-    <script src="player/beatmap.js"></script>
-    <script src="player/timingpoint.js"></script>
-    <script src="player/hitobject.js"></script>
+    <!-- build:js preview.js -->
+    <script src="js/beatmap/beatmap.js"></script>
+        <script src="js/beatmap/timingpoint.js"></script>
+        <script src="js/beatmap/hitobject.js"></script>
 
-    <script src="player/standard.js"></script>
-    <script src="player/hitcircle.js"></script>
-    <script src="player/slider.js"></script>
-    <script src="player/spinner.js"></script>
+    <script src="js/standard/standard.js"></script>
+        <script src="js/standard/hitcircle.js"></script>
+        <script src="js/standard/slider.js"></script>
 
-    <script src="player/mania.js"></script>
-    <script src="player/hitnote.js"></script>
-    <script src="player/holdnote.js"></script>
+        <script src="js/standard/spinner.js"></script>
+
+    <script src="js/mania/mania.js"></script>
+        <script src="js/mania/hitnote.js"></script>
+        <script src="js/mania/holdnote.js"></script>
+    <!-- endbuild -->
     <script>
 var Player = $('canvas');
 Player.audio = new Audio();
