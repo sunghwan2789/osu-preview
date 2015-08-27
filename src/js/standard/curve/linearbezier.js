@@ -1,13 +1,22 @@
-function BezierCurve(points, pixelLength)
+function LinearBezier(points, pixelLength, linear)
 {
     // https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/LinearBezier.java
     var beziers = [],
         controls = [],
-        last = new Point(-1, -1);
+        last = undefined;
     for (var i = 0; i < points.length; i++)
     {
         var point = points[i];
-        if (point.equalTo(last))
+        if (linear)
+        {
+            if (typeof last !== 'undefined')
+            {
+                controls.push(point);
+                beziers.push(new Bezier2(controls));
+                controls = [];
+            }
+        }
+        else if (point.equalTo(last))
         {
             try
             {
@@ -27,5 +36,5 @@ function BezierCurve(points, pixelLength)
 
     EqualDistanceMultiCurve.call(this, beziers, pixelLength);
 };
-BezierCurve.prototype = Object.create(EqualDistanceMultiCurve.prototype);
-BezierCurve.prototype.constructor = BezierCurve;
+LinearBezier.prototype = Object.create(EqualDistanceMultiCurve.prototype);
+LinearBezier.prototype.constructor = LinearBezier;

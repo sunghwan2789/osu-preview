@@ -22,7 +22,8 @@ Point.prototype.distanceTo = function(point)
 };
 Point.prototype.equalTo = function(point)
 {
-    return this.x == point.x && this.y == point.y;
+    return point instanceof Point &&
+        this.x == point.x && this.y == point.y;
 };
 Point.prototype.angleTo = function(point)
 {

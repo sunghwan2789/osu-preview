@@ -29,7 +29,7 @@ function Slider(data)
     }
     else
     {
-        this.curve = new BezierCurve(points, this.pixelLength);
+        this.curve = new LinearBezier(points, this.pixelLength, sliderType == 'L');
     }
 
     this.endPosition = this.curve.pointAt(1);
