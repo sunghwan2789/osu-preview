@@ -77,7 +77,7 @@ Standard.prototype.calcStacks = function()
                 break;
             }
 
-            if (Math.hypot(hitObject.x - hitObjectN.endX, hitObject.y - hitObjectN.endY) < Standard.STACK_LENIENCE)
+            if (hitObject.position.distanceTo(hitObjectN.endPosition) < Standard.STACK_LENIENCE)
             {
                 if (hitObjectN instanceof Slider)
                 {
@@ -85,7 +85,7 @@ Standard.prototype.calcStacks = function()
                     for (var j = n + 1; j <= i; j++)
                     {
                         var hitObjectJ = this.HitObjects[j];
-                        if (Math.hypot(hitObjectJ.x - hitObjectN.endX, hitObjectJ.y - hitObjectN.endY) < Standard.STACK_LENIENCE)
+                        if (hitObjectJ.position.distanceTo(hitObjectN.endPosition) < Standard.STACK_LENIENCE)
                         {
                             hitObjectJ.stack -= offset;
                         }

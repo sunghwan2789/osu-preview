@@ -156,14 +156,10 @@ body {
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
-    <script>
-Math.hypot = Math.hypot || function(a, b)
-{
-    return Math.sqrt(a * a + b * b);
-};
-    </script>
-
     <!-- build:js preview.js -->
+    <script src="js/util.js"></script>
+    <script src="js/point.js"></script>
+
     <script src="js/beatmap/beatmap.js"></script>
         <script src="js/beatmap/timingpoint.js"></script>
         <script src="js/beatmap/hitobject.js"></script>
@@ -171,7 +167,14 @@ Math.hypot = Math.hypot || function(a, b)
     <script src="js/standard/standard.js"></script>
         <script src="js/standard/hitcircle.js"></script>
         <script src="js/standard/slider.js"></script>
-
+            <script src="js/standard/curve/curve.js"></script>
+            <script src="js/standard/curve/equaldistancemulticurve.js"></script>
+                <script src="js/standard/curve/beziercurve.js"></script>
+                <script src="js/standard/curve/catmullcurve.js"></script>
+                    <script src="js/standard/curve/curvetype.js"></script>
+                    <script src="js/standard/curve/bezier2.js"></script>
+                    <script src="js/standard/curve/centripetalcatmullrom.js"></script>
+            <script src="js/standard/curve/circumstancedcircle.js"></script>
         <script src="js/standard/spinner.js"></script>
 
     <script src="js/mania/mania.js"></script>

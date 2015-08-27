@@ -5,8 +5,7 @@ function HitCircle(data)
     this.newCombo = this.flag & 4;
     this.comboSkip = this.flag >> 4;
 
-    this.endX = this.x;
-    this.endY = this.y;
+    this.endPosition = new Point(data);
     this.endTime = this.time;
 
     this.stack = 0;
@@ -31,18 +30,20 @@ HitCircle.prototype.draw = function(time)
     }
     Player.ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
 
-    this.drawCircle(this.x, this.y);
-    this.drawText(this.x, this.y, this.combo);
+    this.drawCircle(this.position);
+    this.drawText(this.position, this.combo);
     if (dt >= 0)
     {
         this.drawApproach(dt);
     }
 };
-HitCircle.prototype.drawCircle = function(x, y)
+HitCircle.prototype.drawCircle = function(position)
 {
     // HitCircle
     Player.ctx.beginPath();
-    Player.ctx.arc(x - this.stack * Player.beatmap.stackOffset, y - this.stack * Player.beatmap.stackOffset, Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
+    Player.ctx.arc(position.x - this.stack * Player.beatmap.stackOffset,
+        position.y - this.stack * Player.beatmap.stackOffset,
+        Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
     Player.ctx.shadowBlur = 0;
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();
@@ -52,12 +53,13 @@ HitCircle.prototype.drawCircle = function(x, y)
     Player.ctx.lineWidth = Player.beatmap.circleBorder;
     Player.ctx.stroke();
 };
-HitCircle.prototype.drawText = function(x, y, text, deg)
+HitCircle.prototype.drawText = function(position, text, deg)
 {
     Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
     Player.ctx.fillStyle = '#fff';
     Player.ctx.save();
-    Player.ctx.translate(x - this.stack * Player.beatmap.stackOffset, y - this.stack * Player.beatmap.stackOffset);
+    Player.ctx.translate(position.x - this.stack * Player.beatmap.stackOffset,
+        position.y - this.stack * Player.beatmap.stackOffset);
     if (typeof deg !== 'undefined')
     {
         Player.ctx.rotate(deg);
@@ -69,7 +71,9 @@ HitCircle.prototype.drawApproach = function(dt)
 {
     var scale = 1 + dt / Player.beatmap.approachTime * 3;
     Player.ctx.beginPath();
-    Player.ctx.arc(this.x - this.stack * Player.beatmap.stackOffset, this.y - this.stack * Player.beatmap.stackOffset, Player.beatmap.circleRadius * scale - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
+    Player.ctx.arc(this.position.x - this.stack * Player.beatmap.stackOffset,
+        this.position.y - this.stack * Player.beatmap.stackOffset,
+        Player.beatmap.circleRadius * scale - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
     Player.ctx.shadowBlur = 0;
     Player.ctx.strokeStyle = this.color;
     Player.ctx.lineWidth = Player.beatmap.circleBorder / 2 * scale;

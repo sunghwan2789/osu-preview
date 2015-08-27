@@ -1,7 +1,6 @@
 function HitObject(data)
 {
-    this.x = data[0] | 0;
-    this.y = data[1] | 0;
+    this.position = new Point(data);
     this.time = data[2] | 0;
     this.flag = data[3] | 0;
 }

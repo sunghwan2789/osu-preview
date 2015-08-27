@@ -2,7 +2,9 @@ function HitNote(data)
 {
     HitObject.call(this, data);
 
-    this.column = Math.max(1, Math.min((this.x / Player.beatmap.columnSize + 1) | 0, Player.beatmap.keyCount)) - 1;
+    this.column = Math.max(1, Math.min((this.position.x / Player.beatmap.columnSize + 1) | 0, Player.beatmap.keyCount)) - 1;
+
+    this.endPosition = new Point(data);
     this.endTime = this.time;
 }
 HitNote.prototype = Object.create(HitObject.prototype);
@@ -16,7 +18,8 @@ HitNote.prototype.calcY = function(y, scroll)
 HitNote.prototype.draw = function(scroll)
 {
     Player.ctx.beginPath();
-    Player.ctx.rect(this.x, this.calcY(this.y, scroll), Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
+    Player.ctx.rect(this.position.x, this.calcY(this.position.y, scroll),
+        Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();
     Player.ctx.strokeStyle = '#ccc';

@@ -44,27 +44,27 @@ Mania.prototype.processHitObject = function(hitObject)
         this.current.colored = 1;
     }
     hitObject.color = this.Colors[hitObject.column];
-    hitObject.x = this.columnWidth * hitObject.column;
+    hitObject.position.x = this.columnWidth * hitObject.column;
     var base = this.timingPointIndexAt(0);
-    hitObject.y = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
+    hitObject.position.y = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
     for (var i = base + 1; i <= this.timingPointIndexAt(hitObject.time); i++)
     {
         var current = this.TimingPoints[i],
             prev = this.TimingPoints[i - 1];
-        hitObject.y += (current.time - prev.time) * prev.sliderVelocity;
+        hitObject.position.y += (current.time - prev.time) * prev.sliderVelocity;
     }
     var current = this.timingPointAt(hitObject.time);
-    hitObject.endY = hitObject.y;
-    hitObject.y += (hitObject.time - current.time) * current.sliderVelocity;
+    hitObject.endPosition.y = hitObject.position.y;
+    hitObject.position.y += (hitObject.time - current.time) * current.sliderVelocity;
 
     for (var i = this.timingPointIndexAt(hitObject.time) + 1; i <= this.timingPointIndexAt(hitObject.endTime); i++)
     {
         var current = this.TimingPoints[i],
             prev = this.TimingPoints[i - 1];
-        hitObject.endY += (current.time - prev.time) * prev.sliderVelocity;
+        hitObject.endPosition.y += (current.time - prev.time) * prev.sliderVelocity;
     }
     var current = this.timingPointAt(hitObject.endTime);
-    hitObject.endY += (hitObject.endTime - current.time) * current.sliderVelocity;
+    hitObject.endPosition.y += (hitObject.endTime - current.time) * current.sliderVelocity;
 };
 Mania.prototype.onload = function()
 {

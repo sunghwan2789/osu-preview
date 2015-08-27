@@ -29,7 +29,8 @@ Spinner.prototype.draw = function(time)
     Player.ctx.save();
     // Spinner
     Player.ctx.beginPath();
-    Player.ctx.arc(this.x, this.y, Spinner.RADIUS - Spinner.BORDER_WIDTH / 2, -Math.PI, Math.PI);
+    Player.ctx.arc(this.position.x, this.position.y,
+        Spinner.RADIUS - Spinner.BORDER_WIDTH / 2, -Math.PI, Math.PI);
     Player.ctx.globalCompositeOperation = 'destination-over';
     Player.ctx.shadowBlur = 0;
     Player.ctx.fillStyle = 'rgba(0,0,0,.4)';
@@ -45,7 +46,8 @@ Spinner.prototype.draw = function(time)
     {
         var scale = 1 + dt / this.duration;
         Player.ctx.beginPath();
-        Player.ctx.arc(this.x, this.y, (Spinner.RADIUS - Spinner.BORDER_WIDTH / 2) * scale, -Math.PI, Math.PI);
+        Player.ctx.arc(this.position.x, this.position.y,
+            (Spinner.RADIUS - Spinner.BORDER_WIDTH / 2) * scale, -Math.PI, Math.PI);
         Player.ctx.shadowBlur = 3;
         Player.ctx.strokeStyle = '#fff';
         Player.ctx.lineWidth = (Spinner.BORDER_WIDTH / 2) * scale;
