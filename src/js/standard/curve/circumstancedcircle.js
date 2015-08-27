@@ -35,7 +35,7 @@ function CircumscribedCircle(points, pixelLength)
 };
 CircumscribedCircle.prototype = Object.create(Curve.prototype);
 CircumscribedCircle.prototype.constructor = CircumscribedCircle;
-CircumscribedCircle.prototype.pointAt = function(t, scaled)
+CircumscribedCircle.prototype.pointAt = function(t)
 {
     var angle = this.angle.base + this.angle.delta * t;
     return new Point(this.circle.x + Math.cos(angle) * this.circle.radius,

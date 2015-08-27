@@ -3,12 +3,12 @@ function Slider(data)
     HitCircle.call(this, data);
 
     var points = data[5].split('|');
-    this.sliderType = points.shift();
-    for (var i = 0; i < points.length; i++)
+    var sliderType = points[0];
+    points[0] = this.position;
+    for (var i = 1; i < points.length; i++)
     {
         points[i] = new Point(points[i].split(':'));
     }
-    this.points = [this.position].concat(points);
     this.repeat = data[6] | 0;
     this.pixelLength = +data[7];
 
@@ -19,17 +19,17 @@ function Slider(data)
 
     // currently, there are 4 sliderTypes
     // Passthrough, Catmull, Bezier, Linear
-    if (this.sliderType == 'P' && this.points.length == 3)
+    if (sliderType == 'P' && points.length == 3)
     {
-        this.curve = new CircumscribedCircle(this.points, this.pixelLength);
+        this.curve = new CircumscribedCircle(points, this.pixelLength);
     }
-    else if (this.sliderType == 'C')
+    else if (sliderType == 'C')
     {
-        this.curve = new CatmullCurve(this.points, this.pixelLength);
+        this.curve = new CatmullCurve(points, this.pixelLength);
     }
     else
     {
-        this.curve = new BezierCurve(this.points, this.pixelLength);
+        this.curve = new BezierCurve(points, this.pixelLength);
     }
 
     this.endPosition = this.curve.pointAt(1);

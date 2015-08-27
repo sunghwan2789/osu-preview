@@ -8,7 +8,6 @@ gulp.task('public', function() {
         .pipe(usemin({
             js: [uglify()]
         }))
-        .pipe(usemin())
         .pipe(gulp.dest('dist/'));
 });
 gulp.task('debug', function() {
