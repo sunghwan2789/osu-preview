@@ -28,3 +28,27 @@ Point.prototype.angleTo = function(point)
 {
     return Math.atan2(point.y - this.y, point.x - this.x);
 };
+Point.prototype.clone = function()
+{
+    return new Point(this.x, this.y);
+};
+Point.prototype.add = function(n)
+{
+    if (n instanceof Point)
+    {
+        this.x += n.x;
+        this.y += n.y;
+    }
+    else
+    {
+        this.x += n;
+        this.y += n;
+    }
+    return this;
+};
+Point.prototype.mul = function(n)
+{
+    this.x *= n;
+    this.y *= n;
+    return this;
+};
