@@ -8,7 +8,7 @@ function CurveType(approxLength)
         this.path[i] = this.pointAt(i / points);
     }
 
-    this.distance = [0];
+    this.distance = [ 0 ];
     for (var i = 1; i <= points; i++)
     {
         this.distance[i] = this.path[i].distanceTo(this.path[i - 1]);

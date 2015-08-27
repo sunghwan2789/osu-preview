@@ -1,17 +1,13 @@
 var gulp = require('gulp'),
     usemin = require('gulp-usemin'),
     uglify = require('gulp-uglify'),
-    concat = require('gulp-concat');
+    minifyCss = require('gulp-minify-css');
 
-gulp.task('public', function() {
-    return gulp.src('src/*.html')
+gulp.task('default', function() {
+    return gulp.src('src/preview.html')
         .pipe(usemin({
-            js: [uglify()]
+            inlinejs: [ uglify() ],
+            inlinecss: [ minifyCss() ]
         }))
-        .pipe(gulp.dest('dist/'));
-});
-gulp.task('debug', function() {
-    return gulp.src('src/*.html')
-        .pipe(usemin())
         .pipe(gulp.dest('dist/'));
 });
