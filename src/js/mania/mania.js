@@ -75,58 +75,58 @@ Mania.prototype.onload = function()
 };
 Mania.prototype.draw = function(time)
 {
-    if (typeof this.current.first === 'undefined')
+    if (typeof this.tmp.first === 'undefined')
     {
-        this.current.first = 0;
-        this.current.last = -1;
-        this.current.pending = undefined;
+        this.tmp.first = 0;
+        this.tmp.last = -1;
+        this.tmp.pending = undefined;
         var base = this.timingPointIndexAt(0);
-        this.current.timingPointIndex = base + 1;
-        this.current.scroll = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
+        this.tmp.timingPointIndex = base + 1;
+        this.tmp.scroll = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
     }
     var timingPointIndex = this.timingPointIndexAt(time);
-    for (; this.current.timingPointIndex <= timingPointIndex; this.current.timingPointIndex++)
+    for (; this.tmp.timingPointIndex <= timingPointIndex; this.tmp.timingPointIndex++)
     {
-        var current = this.TimingPoints[this.current.timingPointIndex],
-            prev = this.TimingPoints[this.current.timingPointIndex - 1];
-        this.current.scroll += (current.time - prev.time) * prev.sliderVelocity;
+        var current = this.TimingPoints[this.tmp.timingPointIndex],
+            prev = this.TimingPoints[this.tmp.timingPointIndex - 1];
+        this.tmp.scroll += (current.time - prev.time) * prev.sliderVelocity;
     }
     var current = this.TimingPoints[timingPointIndex];
-    var scroll = this.current.scroll + (time - current.time) * current.sliderVelocity;
+    var scroll = this.tmp.scroll + (time - current.time) * current.sliderVelocity;
 
-    while (this.current.last + 1 < this.HitObjects.length &&
-        time >= this.HitObjects[this.current.last + 1].time - 20000)
+    while (this.tmp.last + 1 < this.HitObjects.length &&
+        time >= this.HitObjects[this.tmp.last + 1].time - 20000)
     {
-        this.current.last++;
+        this.tmp.last++;
     }
-    for (var i = this.current.first; i <= this.current.last; i++)
+    for (var i = this.tmp.first; i <= this.tmp.last; i++)
     {
         var hitObject = this.HitObjects[i];
         if (hitObject instanceof HoldNote &&
-            typeof this.current.pending === 'undefined')
+            typeof this.tmp.pending === 'undefined')
         {
-            this.current.pending = {
+            this.tmp.pending = {
                 endTime: hitObject.endTime,
                 idx: i
             };
         }
         if (time > hitObject.endTime)
         {
-            this.current.first = i + 1;
+            this.tmp.first = i + 1;
             continue;
         }
 
         hitObject.draw(scroll);
     }
-    if (typeof this.current.pending !== 'undefined')
+    if (typeof this.tmp.pending !== 'undefined')
     {
-        if (this.current.first > this.current.pending.idx)
+        if (this.tmp.first > this.tmp.pending.idx)
         {
-            this.current.first = this.current.pending.idx;
+            this.tmp.first = this.tmp.pending.idx;
         }
-        if (time > this.current.pending.endTime)
+        if (time > this.tmp.pending.endTime)
         {
-            this.current.pending = undefined;
+            this.tmp.pending = undefined;
         }
     }
     Player.ctx.clearRect(0, Mania.HIT_POSITION, Beatmap.WIDTH, Beatmap.HEIGHT - Mania.HIT_POSITION);

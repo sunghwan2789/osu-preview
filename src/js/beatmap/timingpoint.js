@@ -13,12 +13,12 @@ function TimingPoint(line)
     {
         this.sliderVelocity = 1;
         this.beatLength = beatLength;
-        Player.beatmap.current.beatLength = this.beatLength;
+        Player.beatmap.tmp.beatLength = this.beatLength;
     }
     else
     {
         this.sliderVelocity = -100 / beatLength;
-        this.beatLength = Player.beatmap.current.beatLength / this.sliderVelocity;
+        this.beatLength = Player.beatmap.tmp.beatLength / this.sliderVelocity;
         this.inherited = 1;
     }
 }

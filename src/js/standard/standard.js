@@ -37,26 +37,26 @@ Standard.prototype.initialize = function()
     {
         this.Colors = Standard.DEFAULT_COLORS;
     }
-    this.current.combo = 1;
-    this.current.comboIndex = -1;
-    this.current.setComboIndex = 1;
+    this.tmp.combo = 1;
+    this.tmp.comboIndex = -1;
+    this.tmp.setComboIndex = 1;
 };
 Standard.prototype.processHitObject = function(hitObject)
 {
     if (hitObject instanceof Spinner)
     {
-        this.current.setComboIndex = 1;
+        this.tmp.setComboIndex = 1;
     }
-    else if (hitObject.newCombo || this.current.setComboIndex)
+    else if (hitObject.newCombo || this.tmp.setComboIndex)
     {
-        this.current.combo = 1;
-        this.current.comboIndex = (
-            (this.current.comboIndex + 1) + hitObject.comboSkip
+        this.tmp.combo = 1;
+        this.tmp.comboIndex = (
+            (this.tmp.comboIndex + 1) + hitObject.comboSkip
         ) % this.Colors.length;
-        this.current.setComboIndex = 0;
+        this.tmp.setComboIndex = 0;
     }
-    hitObject.combo = this.current.combo++;
-    hitObject.color = this.Colors[this.current.comboIndex];
+    hitObject.combo = this.tmp.combo++;
+    hitObject.color = this.Colors[this.tmp.comboIndex];
 };
 Standard.STACK_LENIENCE = 3;
 Standard.prototype.onload = function()
@@ -119,22 +119,22 @@ Standard.prototype.onload = function()
 };
 Standard.prototype.draw = function(time)
 {
-    if (typeof this.current.first === 'undefined')
+    if (typeof this.tmp.first === 'undefined')
     {
-        this.current.first = 0;
-        this.current.last = -1;
+        this.tmp.first = 0;
+        this.tmp.last = -1;
     }
-    while (this.current.last + 1 < this.HitObjects.length &&
-        time >= this.HitObjects[this.current.last + 1].time - this.approachTime)
+    while (this.tmp.last + 1 < this.HitObjects.length &&
+        time >= this.HitObjects[this.tmp.last + 1].time - this.approachTime)
     {
-        this.current.last++;
+        this.tmp.last++;
     }
-    for (var i = this.current.last; i >= this.current.first; i--)
+    for (var i = this.tmp.last; i >= this.tmp.first; i--)
     {
         var hitObject = this.HitObjects[i];
         if (time > hitObject.endTime + hitObject.__proto__.constructor.FADE_OUT_TIME)
         {
-            this.current.first = i + 1;
+            this.tmp.first = i + 1;
             break;
         }
 

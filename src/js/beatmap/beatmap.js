@@ -1,7 +1,7 @@
 function Beatmap(osu)
 {
     // for temporary vars that need for drawing
-    this.current = {
+    this.tmp = {
         stream: osu.replace(/\r\n?/g, '\n').split('\n').reverse(),
         mask: Object.keys(this.hitObjectTypes).reduce(function(a, b)
         {
@@ -68,7 +68,7 @@ Beatmap.prototype.load = function()
 {
     var currentSection = undefined,
         line = undefined;
-    while (typeof (line = this.current.stream.pop()) !== 'undefined')
+    while (typeof (line = this.tmp.stream.pop()) !== 'undefined')
     {
         // skip comments
         if (/^\/\//.test(line))
@@ -89,9 +89,9 @@ Beatmap.prototype.load = function()
             case 'Difficulty':
             {
                 // let [key, value] = line.split(':', 2);
-                var data = line.split(':', 2),
-                    key = data[0],
-                    value = data[1];
+                var data = line.split(':'),
+                    key = data.shift(),
+                    value = data.join(':');
                 if (key in this)
                 {
                     this[key] = parseFloat(value) == value ? +value : value;
@@ -119,13 +119,13 @@ Beatmap.prototype.load = function()
             }
             case 'HitObjects':
             {
-                if (typeof this.current._init === 'undefined')
+                if (typeof this.tmp._init === 'undefined')
                 {
                     if (typeof this.initialize !== 'undefined')
                     {
                         this.initialize();
                     }
-                    this.current._init = 1;
+                    this.tmp._init = 1;
                 }
                 try
                 {

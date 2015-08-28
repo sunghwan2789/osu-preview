@@ -15,7 +15,7 @@ HitObject.parse = function(line)
         throw 'invalid data';
     }
 
-    var type = data[3] & Player.beatmap.current.mask;
+    var type = data[3] & Player.beatmap.tmp.mask;
     if (!(type in Player.beatmap.hitObjectTypes))
     {
         // throw 'we do not support this hitobject type';

@@ -159,14 +159,14 @@ $(Player.audio).on('pause', function() {
     $('.e', Player.speed).trigger('click');
 }).on('play', function() {
     Player.button.removeClass('e');
-    Player.beatmap.current = {};
+    Player.beatmap.tmp = {};
     Player.play();
 }).on('timeupdate', function() {
     Player.progress.val(Player.audio.currentTime);
 });
 Player.progress.on('change', function() {
     Player.audio.currentTime = Player.progress.val();
-    Player.beatmap.current = {};
+    Player.beatmap.tmp = {};
     if (Player.audio.paused)
     {
         Player.play();
