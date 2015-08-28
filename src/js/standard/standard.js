@@ -124,6 +124,15 @@ Standard.prototype.draw = function(time)
         this.tmp.first = 0;
         this.tmp.last = -1;
     }
+    while (this.tmp.first < this.HitObjects.length)
+    {
+        var hitObject = this.HitObjects[this.tmp.first];
+        if (time <= hitObject.endTime + hitObject.__proto__.constructor.FADE_OUT_TIME)
+        {
+            break;
+        }
+        this.tmp.first++;
+    }
     while (this.tmp.last + 1 < this.HitObjects.length &&
         time >= this.HitObjects[this.tmp.last + 1].time - this.approachTime)
     {
@@ -134,10 +143,8 @@ Standard.prototype.draw = function(time)
         var hitObject = this.HitObjects[i];
         if (time > hitObject.endTime + hitObject.__proto__.constructor.FADE_OUT_TIME)
         {
-            this.tmp.first = i + 1;
-            break;
+            continue;
         }
-
         hitObject.draw(time);
     }
 };
