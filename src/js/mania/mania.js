@@ -96,33 +96,26 @@ Mania.prototype.draw = function(time)
     for (var i = this.tmp.first; i <= this.tmp.last; i++)
     {
         var hitObject = this.HitObjects[i];
-        if (hitObject instanceof HoldNote &&
-            time <= hitObject.endTime &&
-            typeof this.tmp.pending === 'undefined')
-        {
-            this.tmp.pending = {
-                endTime: hitObject.endTime,
-                idx: i
-            };
-        }
         if (time > hitObject.endTime)
         {
             this.tmp.first = i + 1;
             continue;
+        }
+        else if (hitObject instanceof HoldNote &&
+            typeof this.tmp.pending === 'undefined')
+        {
+            this.tmp.pending = i;
         }
 
         hitObject.draw(scroll);
     }
     if (typeof this.tmp.pending !== 'undefined')
     {
-        if (this.tmp.first > this.tmp.pending.idx)
+        if (this.tmp.first > this.tmp.pending)
         {
-            this.tmp.first = this.tmp.pending.idx;
+            this.tmp.first = this.tmp.pending;
         }
-        if (time > this.tmp.pending.endTime)
-        {
-            this.tmp.pending = undefined;
-        }
+        this.tmp.pending = undefined;
     }
     Player.ctx.clearRect(0, Mania.HIT_POSITION, Beatmap.WIDTH, Beatmap.HEIGHT - Mania.HIT_POSITION);
 };
