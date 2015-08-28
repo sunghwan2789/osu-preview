@@ -13,26 +13,36 @@ Standard.DEFAULT_COLORS = [
     'rgb(242,24,57)',
     'rgb(255,292,0)'
 ];
+Standard.prototype.initialize = function()
+{
+    // if (typeof Slider === 'undefined')
+    // {
+    //     Slider = function() {};
+    // }
+    // if (typeof Spinner === 'undefined')
+    // {
+    //     Spinner = function() {};
+    // }
+
+    var ar = this.ApproachRate || this.OverallDifficulty;
+    this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
+    this.circleDiameter = 104 - this.CircleSize * 8;
+    this.stackOffset = this.circleDiameter / 20;
+
+    if (this.Colors.length)
+    {
+        this.Colors.push(this.Colors.shift());
+    }
+    else
+    {
+        this.Colors = Standard.DEFAULT_COLORS;
+    }
+    this.current.combo = 1;
+    this.current.comboIndex = -1;
+    this.current.setComboIndex = 1;
+};
 Standard.prototype.processHitObject = function(hitObject)
 {
-    if (typeof this.current.combo === 'undefined')
-    {
-        if (this.Colors.length)
-        {
-            this.Colors.push(this.Colors.shift());
-        }
-        else
-        {
-            this.Colors = Standard.DEFAULT_COLORS;
-        }
-        this.current.combo = 1;
-        this.current.comboIndex = -1;
-        this.current.setComboIndex = 1;
-        if (typeof Spinner === 'undefined')
-        {
-            Spinner = Object;
-        }
-    }
     if (hitObject instanceof Spinner)
     {
         this.current.setComboIndex = 1;
@@ -49,13 +59,10 @@ Standard.prototype.processHitObject = function(hitObject)
     hitObject.color = this.Colors[this.current.comboIndex];
 };
 Standard.STACK_LENIENCE = 3;
-Standard.prototype.calcStacks = function()
+Standard.prototype.onload = function()
 {
+    // calculate stacks
     // https://gist.github.com/peppy/1167470
-    if (typeof Slider === 'undefined')
-    {
-        Slider = Object;
-    }
     for (var i = this.HitObjects.length - 1; i > 0; i--)
     {
         var hitObject = this.HitObjects[i];
@@ -98,15 +105,6 @@ Standard.prototype.calcStacks = function()
             }
         }
     }
-};
-Standard.prototype.onload = function()
-{
-    var ar = this.ApproachRate || this.OverallDifficulty;
-    this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
-    this.circleDiameter = 104 - this.CircleSize * 8;
-    this.stackOffset = this.circleDiameter / 20;
-
-    this.calcStacks();
 
     this.circleRadius = this.circleDiameter / 2;
     this.circleBorder = this.circleRadius / 8;

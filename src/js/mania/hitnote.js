@@ -19,7 +19,7 @@ HitNote.prototype.draw = function(scroll)
 {
     Player.ctx.beginPath();
     Player.ctx.rect(this.position.x, this.calcY(this.position.y, scroll),
-        Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
+        Mania.COLUMN_WIDTH, Mania.COLUMN_WIDTH / 3);
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();
     Player.ctx.strokeStyle = '#ccc';

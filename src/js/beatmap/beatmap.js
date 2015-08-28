@@ -10,7 +10,6 @@ function Beatmap(osu)
     };
 
     // [General]
-    this.Mode = 0;
     this.StackLeniency = 0.7;
 
     // [Metadata]
@@ -38,7 +37,7 @@ function Beatmap(osu)
 }
 Beatmap.prototype = {
     hitObjectTypes: undefined,
-    onsectionchange: undefined,
+    initialize: undefined,
     processHitObject: undefined,
     onload: undefined,
     draw: undefined,
@@ -79,12 +78,7 @@ Beatmap.prototype.load = function()
 
         if (/^\[/.test(line))
         {
-            var section = line.slice(1, line.indexOf(']'));
-            if (typeof this.onsectionchange !== 'undefined')
-            {
-                this.onsectionchange(section, currentSection);
-            }
-            currentSection = section;
+            currentSection = line.slice(1, line.indexOf(']'));
             continue;
         }
 
@@ -125,6 +119,14 @@ Beatmap.prototype.load = function()
             }
             case 'HitObjects':
             {
+                if (typeof this.current._init === 'undefined')
+                {
+                    if (typeof this.initialize !== 'undefined')
+                    {
+                        this.initialize();
+                    }
+                    this.current._init = 1;
+                }
                 try
                 {
                     var hitObject = HitObject.parse(line);

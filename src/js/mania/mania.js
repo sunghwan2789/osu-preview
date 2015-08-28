@@ -14,37 +14,37 @@ Mania.DEFAULT_COLORS = [
 ];
 Mania.COLUMN_START = 130;
 Mania.HIT_POSITION = 400;
-Mania.prototype.onsectionchange = function(now, prev)
+Mania.COLUMN_WIDTH = 30;
+Mania.SCROLL_SPEED = 20; // TODO: remember speed changes
+Mania.prototype.initialize = function()
 {
-    if (now == 'HitObjects')
+    // if (typeof HoldNote === 'undefined')
+    // {
+    //     HoldNote = function() {};
+    // }
+
+    this.keyCount = this.CircleSize;
+    this.columnSize = Beatmap.MAX_X / this.keyCount;
+    this.scrollSpeed = Mania.SCROLL_SPEED;
+
+    for (var i = 0; i < this.keyCount; i++)
     {
-        this.keyCount = this.CircleSize;
-        this.columnSize = Beatmap.MAX_X / this.keyCount;
-        this.columnWidth = 30;
-        this.scrollSpeed = 20;
+        this.Colors[i] = Mania.DEFAULT_COLORS[i % 2];
+    }
+    var p = this.keyCount / 2;
+    if (this.keyCount % 2)
+    {
+        this.Colors[p | 0] = Mania.DEFAULT_COLORS[2];
+    }
+    else
+    {
+        this.Colors = this.Colors.slice(0, p).concat(this.Colors.slice(p - 1));
     }
 };
 Mania.prototype.processHitObject = function(hitObject)
 {
-    if (typeof this.current.colored === 'undefined')
-    {
-        for (var i = 0; i < this.keyCount; i++)
-        {
-            this.Colors[i] = Mania.DEFAULT_COLORS[i % 2];
-        }
-        var p = this.keyCount / 2;
-        if (this.keyCount % 2)
-        {
-            this.Colors[p | 0] = Mania.DEFAULT_COLORS[2];
-        }
-        else
-        {
-            this.Colors = this.Colors.slice(0, p).concat(this.Colors.slice(p - 1));
-        }
-        this.current.colored = 1;
-    }
     hitObject.color = this.Colors[hitObject.column];
-    hitObject.position.x = this.columnWidth * hitObject.column;
+    hitObject.position.x = Mania.COLUMN_WIDTH * hitObject.column;
     var base = this.timingPointIndexAt(0);
     hitObject.position.y = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
     for (var i = base + 1; i <= this.timingPointIndexAt(hitObject.time); i++)
@@ -83,10 +83,6 @@ Mania.prototype.draw = function(time)
         var base = this.timingPointIndexAt(0);
         this.current.timingPointIndex = base + 1;
         this.current.scroll = this.TimingPoints[base].time * this.TimingPoints[base].sliderVelocity;
-        if (typeof HoldNote === 'undefined')
-        {
-            HoldNote = Object;
-        }
     }
     var timingPointIndex = this.timingPointIndexAt(time);
     for (; this.current.timingPointIndex <= timingPointIndex; this.current.timingPointIndex++)
@@ -138,7 +134,7 @@ Mania.prototype.draw = function(time)
 Mania.prototype.processBG = function(ctx)
 {
     ctx.beginPath();
-    ctx.rect(Mania.COLUMN_START, 0, this.columnWidth * this.keyCount, Beatmap.HEIGHT);
+    ctx.rect(Mania.COLUMN_START, 0, Mania.COLUMN_WIDTH * this.keyCount, Beatmap.HEIGHT);
     ctx.strokeStyle = '#ddd';
     ctx.lineWidth = 8;
     ctx.stroke();
@@ -147,7 +143,7 @@ Mania.prototype.processBG = function(ctx)
 
     for (var i = 0; i < this.keyCount; i++)
     {
-        var x = Mania.COLUMN_START + this.columnWidth * i;
+        var x = Mania.COLUMN_START + Mania.COLUMN_WIDTH * i;
 
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -157,14 +153,14 @@ Mania.prototype.processBG = function(ctx)
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.rect(x, Beatmap.HEIGHT - 80, this.columnWidth, 80);
+        ctx.rect(x, Beatmap.HEIGHT - 80, Mania.COLUMN_WIDTH, 80);
         ctx.fillStyle = this.Colors[i];
         ctx.fill();
         ctx.strokeStyle = '#ddd';
         ctx.lineWidth = 3;
         ctx.stroke();
     }
-    var x = Mania.COLUMN_START + this.columnWidth * this.keyCount;
+    var x = Mania.COLUMN_START + Mania.COLUMN_WIDTH * this.keyCount;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, Beatmap.HEIGHT - 80);
@@ -173,7 +169,7 @@ Mania.prototype.processBG = function(ctx)
     ctx.stroke();
     // HIT POSITION
     ctx.beginPath();
-    ctx.rect(Mania.COLUMN_START, Mania.HIT_POSITION, this.columnWidth * this.keyCount, this.columnWidth / 3);
+    ctx.rect(Mania.COLUMN_START, Mania.HIT_POSITION, Mania.COLUMN_WIDTH * this.keyCount, Mania.COLUMN_WIDTH / 3);
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.stroke();

@@ -8,26 +8,30 @@ HoldNote.prototype = Object.create(HitNote.prototype);
 HoldNote.prototype.constructor = HoldNote;
 HoldNote.id = 128;
 Mania.prototype.hitObjectTypes[HoldNote.id] = HoldNote;
+HoldNote.WIDTH_SCALE = 0.8;
+HoldNote.OPACITY = 0.66;
 HoldNote.prototype.draw = function(scroll)
 {
     var sy = this.calcY(this.position.y, scroll),
         ey = this.calcY(this.endPosition.y, scroll);
 
-    var w = Player.beatmap.columnWidth * 0.8;
+    var w = Mania.COLUMN_WIDTH * HoldNote.WIDTH_SCALE;
+    Player.ctx.globalAlpha = HoldNote.OPACITY;
     Player.ctx.beginPath();
-    Player.ctx.rect(this.position.x + (Player.beatmap.columnWidth - w) / 2, ey, w, sy - ey);
+    Player.ctx.rect(this.position.x + (Mania.COLUMN_WIDTH - w) / 2, ey, w, sy - ey);
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();
+    Player.ctx.globalAlpha = 1;
 
     Player.ctx.beginPath();
-    Player.ctx.rect(this.position.x, sy, Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
+    Player.ctx.rect(this.position.x, sy, Mania.COLUMN_WIDTH, Mania.COLUMN_WIDTH / 3);
     Player.ctx.fill();
     Player.ctx.strokeStyle = '#ccc';
     Player.ctx.lineWidth = 1;
     Player.ctx.stroke();
 
     Player.ctx.beginPath();
-    Player.ctx.rect(this.position.x, ey, Player.beatmap.columnWidth, Player.beatmap.columnWidth / 3);
+    Player.ctx.rect(this.position.x, ey, Mania.COLUMN_WIDTH, Mania.COLUMN_WIDTH / 3);
     Player.ctx.fill();
     Player.ctx.stroke();
 };
