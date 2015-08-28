@@ -141,6 +141,11 @@ Beatmap.prototype.load = function()
             }
         }
     }
+    if (typeof this.tmp._init === 'undefined' &&
+        typeof this.initialize !== 'undefined')
+    {
+        this.initialize();
+    }
     if (typeof this.onload !== 'undefined')
     {
         this.onload();
