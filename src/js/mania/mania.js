@@ -97,6 +97,7 @@ Mania.prototype.draw = function(time)
     {
         var hitObject = this.HitObjects[i];
         if (hitObject instanceof HoldNote &&
+            time <= hitObject.endTime &&
             typeof this.tmp.pending === 'undefined')
         {
             this.tmp.pending = {
