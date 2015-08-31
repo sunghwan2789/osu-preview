@@ -26,7 +26,8 @@ Standard.prototype.initialize = function()
 
     var ar = this.ApproachRate || this.OverallDifficulty;
     this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
-    this.circleDiameter = 104 - this.CircleSize * 8;
+    // https://github.com/itdelatrisu/opsu/commit/8892973d98e04ebaa6656fe2a23749e61a122705
+    this.circleDiameter = 108.848 - (this.CircleSize * 8.9646);
     this.stackOffset = this.circleDiameter / 20;
 
     if (this.Colors.length)
