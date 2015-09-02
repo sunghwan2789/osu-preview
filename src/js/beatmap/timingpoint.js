@@ -15,6 +15,16 @@ function TimingPoint(line)
     if (this.beatLength >= 0)
     {
         this.parent = this;
+        if (typeof Player.beatmap.tmp.tpBase === 'undefined')
+        {
+            this.scrollSpeed = 1;
+        }
+        else
+        {
+            this.scrollSpeed = Player.beatmap.tmp.tpBase.scrollSpeed * (
+                Player.beatmap.tmp.tpBase.beatLength / this.beatLength
+            );
+        }
         Player.beatmap.tmp.tpBase = this;
     }
     else

@@ -45,11 +45,11 @@ Mania.prototype.initialize = function()
     this.scrollAtTimingPointIndex = [];
     var baseIdx = this.timingPointIndexAt(0),
         base = this.TimingPoints[baseIdx];
-    this.scrollAtTimingPointIndex[baseIdx] = base.time * (base.meter / 120) * base.sliderVelocity;
+    this.scrollAtTimingPointIndex[baseIdx] = base.time * base.parent.scrollSpeed * base.sliderVelocity;
     while (++baseIdx < this.TimingPoints.length)
     {
         var next = this.TimingPoints[baseIdx];
-        this.scrollAtTimingPointIndex[baseIdx] = (next.time - base.time) * (base.meter / 120) * base.sliderVelocity +
+        this.scrollAtTimingPointIndex[baseIdx] = (next.time - base.time) * base.parent.scrollSpeed * base.sliderVelocity +
             this.scrollAtTimingPointIndex[baseIdx - 1];
         base = next;
     }
@@ -58,7 +58,7 @@ Mania.prototype.scrollAt = function(time)
 {
     var baseIdx = this.timingPointIndexAt(time),
         base = this.TimingPoints[baseIdx];
-    return (time - base.time) * (base.meter / 120) * base.sliderVelocity + this.scrollAtTimingPointIndex[baseIdx];
+    return (time - base.time) * base.parent.scrollSpeed * base.sliderVelocity + this.scrollAtTimingPointIndex[baseIdx];
 };
 Mania.prototype.processHitObject = function(hitObject)
 {
@@ -76,7 +76,7 @@ Mania.prototype.onload = function()
 };
 Mania.prototype.calcY = function(y, scroll)
 {
-    return Mania.HIT_POSITION - (y - scroll) * this.scrollSpeed;
+    return Mania.HIT_POSITION - (y - scroll) * this.scrollSpeed * 0.035;
 };
 Mania.prototype.draw = function(time)
 {
