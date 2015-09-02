@@ -127,7 +127,7 @@ Mania.prototype.draw = function(time)
         Player.ctx.beginPath();
         Player.ctx.moveTo(0, barline);
         Player.ctx.lineTo(Mania.COLUMN_WIDTH * this.keyCount, barline);
-        Player.ctx.strokeStyle = '#ccc';
+        Player.ctx.strokeStyle = '#fff';
         Player.ctx.lineWidth = 1;
         Player.ctx.stroke();
     }
@@ -158,23 +158,23 @@ Mania.prototype.processBG = function(ctx)
 
         ctx.beginPath();
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, Beatmap.HEIGHT - 80);
+        ctx.lineTo(x, Mania.HIT_POSITION);
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 1;
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.rect(x, Beatmap.HEIGHT - 80, Mania.COLUMN_WIDTH, 80);
+        ctx.rect(x, Mania.HIT_POSITION, Mania.COLUMN_WIDTH, Beatmap.HEIGHT - Mania.HIT_POSITION);
         ctx.fillStyle = this.Colors[i];
         ctx.fill();
-        ctx.strokeStyle = '#ddd';
+        ctx.strokeStyle = '#fff';
         ctx.lineWidth = 3;
         ctx.stroke();
     }
     var x = Mania.COLUMN_START + Mania.COLUMN_WIDTH * this.keyCount;
     ctx.beginPath();
     ctx.moveTo(x, 0);
-    ctx.lineTo(x, Beatmap.HEIGHT - 80);
+    ctx.lineTo(x, Mania.HIT_POSITION);
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 1;
     ctx.stroke();
