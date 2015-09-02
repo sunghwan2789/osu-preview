@@ -11,14 +11,10 @@ HitNote.prototype = Object.create(HitObject.prototype);
 HitNote.prototype.constructor = HitNote;
 HitNote.id = 1;
 Mania.prototype.hitObjectTypes[HitNote.id] = HitNote;
-HitNote.prototype.calcY = function(y, scroll)
-{
-    return Mania.HIT_POSITION - (y - scroll) * Player.beatmap.scrollSpeed * 0.035;
-};
 HitNote.prototype.draw = function(scroll)
 {
     Player.ctx.beginPath();
-    Player.ctx.rect(this.position.x, this.calcY(this.position.y, scroll),
+    Player.ctx.rect(this.position.x, Player.beatmap.calcY(this.position.y, scroll),
         Mania.COLUMN_WIDTH, Mania.COLUMN_WIDTH / 3);
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();

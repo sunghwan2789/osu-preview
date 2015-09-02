@@ -45,13 +45,12 @@ Mania.prototype.initialize = function()
     this.scrollAtTimingPointIndex = [];
     var baseIdx = this.timingPointIndexAt(0),
         base = this.TimingPoints[baseIdx];
-    this.scrollAtTimingPointIndex[baseIdx] = base.time * base.sliderVelocity;
+    this.scrollAtTimingPointIndex[baseIdx] = base.time * base.sliderVelocity * base.meter / 120;
     while (++baseIdx < this.TimingPoints.length)
     {
         var next = this.TimingPoints[baseIdx];
         this.scrollAtTimingPointIndex[baseIdx] =
-            this.scrollAtTimingPointIndex[baseIdx - 1] +
-            (next.time - base.time) * base.sliderVelocity;
+            (next.time - base.time) * base.sliderVelocity * base.meter / 120 + this.scrollAtTimingPointIndex[baseIdx - 1];
         base = next;
     }
 };
@@ -59,7 +58,7 @@ Mania.prototype.scrollAt = function(time)
 {
     var baseIdx = this.timingPointIndexAt(time),
         base = this.TimingPoints[baseIdx];
-    return this.scrollAtTimingPointIndex[baseIdx] + (time - base.time) * base.sliderVelocity;
+    return (time - base.time) * base.sliderVelocity * base.meter / 120 + this.scrollAtTimingPointIndex[baseIdx];
 };
 Mania.prototype.processHitObject = function(hitObject)
 {
@@ -74,6 +73,10 @@ Mania.prototype.onload = function()
 
     $('#mania').addClass('e');
     $('#scroll').text(this.scrollSpeed);
+};
+Mania.prototype.calcY = function(y, scroll)
+{
+    return Mania.HIT_POSITION - (y - scroll) * this.scrollSpeed;
 };
 Mania.prototype.draw = function(time)
 {
@@ -91,11 +94,42 @@ Mania.prototype.draw = function(time)
     while (this.tmp.last + 1 < this.HitObjects.length)
     {
         var hitObject = this.HitObjects[this.tmp.last + 1];
-        if (hitObject.calcY(hitObject.position.y, scroll) < -Mania.COLUMN_WIDTH)
+        if (this.calcY(hitObject.position.y, scroll) < -Mania.COLUMN_WIDTH)
         {
             break;
         }
         this.tmp.last++;
+    }
+    var barlines = [];
+    for (var i = this.timingPointIndexAt(time); i < this.TimingPoints.length; i++)
+    {
+        var base = this.TimingPoints[i].parent,
+            n = -(time - base.time) / (base.beatLength * base.meter) | 0,
+            bartime = base.time + base.beatLength * base.meter * n,
+            barline = this.scrollAt(bartime);
+        for (var j = barlines.length - 1; barlines[j] >= barline; j--)
+        {
+            barlines.pop();
+        }
+        while (this.calcY(barline, scroll) > -Mania.COLUMN_WIDTH)
+        {
+            if (barline > scroll)
+            {
+                barlines.push(barline);
+            }
+            bartime += base.beatLength * base.meter;
+            barline = this.scrollAt(bartime);
+        }
+    }
+    while (barlines.length > 0)
+    {
+        var barline = this.calcY(barlines.pop(), scroll) + Mania.COLUMN_WIDTH / 3;
+        Player.ctx.beginPath();
+        Player.ctx.moveTo(0, barline);
+        Player.ctx.lineTo(Mania.COLUMN_WIDTH * this.keyCount, barline);
+        Player.ctx.strokeStyle = '#ccc';
+        Player.ctx.lineWidth = 1;
+        Player.ctx.stroke();
     }
     for (var i = this.tmp.first; i <= this.tmp.last; i++)
     {
