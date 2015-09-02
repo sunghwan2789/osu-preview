@@ -43,22 +43,27 @@ Mania.prototype.initialize = function()
 
     // dp for numerous call to this.scrollAt
     this.scrollAtTimingPointIndex = [];
-    var baseIdx = this.timingPointIndexAt(0),
-        base = this.TimingPoints[baseIdx];
-    this.scrollAtTimingPointIndex[baseIdx] = base.time * base.parent.scrollSpeed * base.sliderVelocity;
-    while (++baseIdx < this.TimingPoints.length)
+    var currentIdx = this.timingPointIndexAt(0),
+        current = this.TimingPoints[currentIdx],
+        base = this.TimingPoints[0],
+        scrollVelocity = base.beatLength / current.beatLength;
+    this.scrollAtTimingPointIndex[currentIdx] = current.time * scrollVelocity;
+    while (++currentIdx < this.TimingPoints.length)
     {
-        var next = this.TimingPoints[baseIdx];
-        this.scrollAtTimingPointIndex[baseIdx] = (next.time - base.time) * base.parent.scrollSpeed * base.sliderVelocity +
-            this.scrollAtTimingPointIndex[baseIdx - 1];
-        base = next;
+        var next = this.TimingPoints[currentIdx];
+        this.scrollAtTimingPointIndex[currentIdx] = (next.time - current.time) * scrollVelocity +
+            this.scrollAtTimingPointIndex[currentIdx - 1];
+        current = next;
+        scrollVelocity = base.beatLength / current.beatLength;
     }
 };
 Mania.prototype.scrollAt = function(time)
 {
-    var baseIdx = this.timingPointIndexAt(time),
-        base = this.TimingPoints[baseIdx];
-    return (time - base.time) * base.parent.scrollSpeed * base.sliderVelocity + this.scrollAtTimingPointIndex[baseIdx];
+    var currentIdx = this.timingPointIndexAt(time),
+        current = this.TimingPoints[currentIdx],
+        base = this.TimingPoints[0],
+        scrollVelocity = base.beatLength / current.beatLength;
+    return (time - current.time) * scrollVelocity + this.scrollAtTimingPointIndex[currentIdx];
 };
 Mania.prototype.processHitObject = function(hitObject)
 {
@@ -103,10 +108,12 @@ Mania.prototype.draw = function(time)
     var barlines = [];
     for (var i = this.timingPointIndexAt(time); i < this.TimingPoints.length; i++)
     {
-        var base = this.TimingPoints[i].parent,
-            n = -(time - base.time) / (base.beatLength * base.meter) | 0,
-            bartime = base.time + base.beatLength * base.meter * n,
-            barline = this.scrollAt(bartime);
+        var current = this.TimingPoints[i],
+            base = current.parent || current,
+            barLength = base.beatLength * base.meter,
+            n = -(time - base.time) / barLength | 0,
+            barTime = base.time + barLength * n,
+            barline = this.scrollAt(barTime);
         for (var j = barlines.length - 1; barlines[j] >= barline; j--)
         {
             barlines.pop();
@@ -117,8 +124,8 @@ Mania.prototype.draw = function(time)
             {
                 barlines.push(barline);
             }
-            bartime += base.beatLength * base.meter;
-            barline = this.scrollAt(bartime);
+            barTime += barLength;
+            barline = this.scrollAt(barTime);
         }
     }
     while (barlines.length > 0)

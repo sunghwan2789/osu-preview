@@ -9,30 +9,18 @@ function TimingPoint(line)
     this.time = data[0] | 0;
     this.beatLength = +data[1];
     this.meter = data[2] | 0;
-    this.sliderVelocity = 1;
 
     // this is non-inherited timingPoint
     if (this.beatLength >= 0)
     {
-        this.parent = this;
-        if (typeof Player.beatmap.tmp.tpBase === 'undefined')
-        {
-            this.scrollSpeed = 1;
-        }
-        else
-        {
-            this.scrollSpeed = Player.beatmap.tmp.tpBase.scrollSpeed * (
-                Player.beatmap.tmp.tpBase.beatLength / this.beatLength
-            );
-        }
-        Player.beatmap.tmp.tpBase = this;
+        Player.beatmap.tmp.tpParent = this;
     }
     else
     {
-        this.parent = Player.beatmap.tmp.tpBase;
-        this.sliderVelocity = -100 / this.beatLength;
+        this.parent = Player.beatmap.tmp.tpParent;
+        var sliderVelocity = -100 / this.beatLength;
+        this.beatLength = this.parent.beatLength / sliderVelocity;
         this.meter = this.parent.meter;
-        this.beatLength = this.parent.beatLength / this.sliderVelocity;
     }
 }
 TimingPoint.prototype.getBPM = function()
