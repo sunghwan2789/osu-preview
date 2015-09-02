@@ -14,7 +14,7 @@ Mania.prototype.hitObjectTypes[HitNote.id] = HitNote;
 HitNote.prototype.draw = function(scroll)
 {
     Player.ctx.beginPath();
-    Player.ctx.rect(this.position.x, Player.beatmap.calcY(this.position.y, scroll),
+    Player.ctx.rect(this.position.x, Player.beatmap.calcY(this.position.y, scroll) - Mania.COLUMN_WIDTH / 3,
         Mania.COLUMN_WIDTH, Mania.COLUMN_WIDTH / 3);
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();

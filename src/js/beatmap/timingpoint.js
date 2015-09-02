@@ -8,8 +8,8 @@ function TimingPoint(line)
 
     this.time = data[0] | 0;
     this.beatLength = +data[1];
-    this.sliderVelocity = 1;
     this.meter = data[2] | 0;
+    this.sliderVelocity = 1;
 
     // this is non-inherited timingPoint
     if (this.beatLength >= 0)
@@ -20,8 +20,8 @@ function TimingPoint(line)
     else
     {
         this.parent = Player.beatmap.tmp.tpBase;
-        this.meter = this.parent.meter;
         this.sliderVelocity = -100 / this.beatLength;
+        this.meter = this.parent.meter;
         this.beatLength = this.parent.beatLength / this.sliderVelocity;
     }
 }

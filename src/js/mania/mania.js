@@ -45,12 +45,12 @@ Mania.prototype.initialize = function()
     this.scrollAtTimingPointIndex = [];
     var baseIdx = this.timingPointIndexAt(0),
         base = this.TimingPoints[baseIdx];
-    this.scrollAtTimingPointIndex[baseIdx] = base.time * base.sliderVelocity * base.meter / 120;
+    this.scrollAtTimingPointIndex[baseIdx] = base.time * (base.meter / 120) * base.sliderVelocity;
     while (++baseIdx < this.TimingPoints.length)
     {
         var next = this.TimingPoints[baseIdx];
-        this.scrollAtTimingPointIndex[baseIdx] =
-            (next.time - base.time) * base.sliderVelocity * base.meter / 120 + this.scrollAtTimingPointIndex[baseIdx - 1];
+        this.scrollAtTimingPointIndex[baseIdx] = (next.time - base.time) * (base.meter / 120) * base.sliderVelocity +
+            this.scrollAtTimingPointIndex[baseIdx - 1];
         base = next;
     }
 };
@@ -58,7 +58,7 @@ Mania.prototype.scrollAt = function(time)
 {
     var baseIdx = this.timingPointIndexAt(time),
         base = this.TimingPoints[baseIdx];
-    return (time - base.time) * base.sliderVelocity * base.meter / 120 + this.scrollAtTimingPointIndex[baseIdx];
+    return (time - base.time) * (base.meter / 120) * base.sliderVelocity + this.scrollAtTimingPointIndex[baseIdx];
 };
 Mania.prototype.processHitObject = function(hitObject)
 {
@@ -123,7 +123,7 @@ Mania.prototype.draw = function(time)
     }
     while (barlines.length > 0)
     {
-        var barline = this.calcY(barlines.pop(), scroll) + Mania.COLUMN_WIDTH / 3;
+        var barline = this.calcY(barlines.pop(), scroll);
         Player.ctx.beginPath();
         Player.ctx.moveTo(0, barline);
         Player.ctx.lineTo(Mania.COLUMN_WIDTH * this.keyCount, barline);
