@@ -21,10 +21,10 @@ function Beatmap(osu)
     this.Version = 'Normal';
 
     // [Difficulty]
-    this.CircleSize = 4;
+    this.CircleSize = 5;
     this.OverallDifficulty = 5;
     this.ApproachRate = undefined;
-    this.SliderMultiplier = 1;
+    this.SliderMultiplier = 1.4;
 
     // [TimingPoints]
     this.TimingPoints = [];
