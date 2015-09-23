@@ -11,21 +11,17 @@ Curve.prototype = {
 Curve.PRECISION = 5;
 Curve.parse = function(sliderType, points, pixelLength)
 {
-    if (sliderType == 'P' && points.length == 3)
+    try
     {
-        try
+        if (sliderType == 'P')
         {
             return new CircumscribedCircle(points, pixelLength);
         }
-        catch (e)
+        if (sliderType == 'C')
         {
-            // CircumscribedCircle throws error if vectors are parallel
-            return new LinearBezier(points, pixelLength, false);
+            return new CatmullCurve(points, pixelLength);
         }
     }
-    if (sliderType == 'C')
-    {
-        return new CatmullCurve(points, pixelLength);
-    }
+    catch(e) {}
     return new LinearBezier(points, pixelLength, sliderType == 'L');
 }

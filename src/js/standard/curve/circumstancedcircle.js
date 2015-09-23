@@ -13,9 +13,10 @@ function CircumscribedCircle(points, pixelLength)
         r = Math.hypot(dx, dy),
         base = Math.atan2(dy, dx),
         t = pixelLength / r * Math.ccw(points[0], points[1], points[2]);
-    if (t == 0)
+    if (!t)
     {
-        throw 'vectors are parallel';
+        // when points[2] is missing or vectors are parallel
+        throw 'invalid data';
     }
     this.circle = {
         x: x,
