@@ -9,3 +9,23 @@ Curve.prototype = {
     pointAt: undefined
 };
 Curve.PRECISION = 5;
+Curve.parse = function(sliderType, points, pixelLength)
+{
+    if (sliderType == 'P' && points.length == 3)
+    {
+        try
+        {
+            return new CircumscribedCircle(points, pixelLength);
+        }
+        catch (e)
+        {
+            // CircumscribedCircle throws error if vectors are parallel
+            return new LinearBezier(points, pixelLength, false);
+        }
+    }
+    if (sliderType == 'C')
+    {
+        return new CatmullCurve(points, pixelLength);
+    }
+    return new LinearBezier(points, pixelLength, sliderType == 'L');
+}

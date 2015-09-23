@@ -12,25 +12,13 @@ function Slider(data)
     this.repeat = data[6] | 0;
     this.pixelLength = +data[7];
 
-    var speed = 100 / Player.beatmap.timingPointAt(this.time).beatLength *
-            Player.beatmap.SliderMultiplier;
-    this.endTime += this.pixelLength / speed * this.repeat;
+    var sliderTime = Player.beatmap.timingPointAt(this.time).beatLength * (
+            this.pixelLength / Player.beatmap.SliderMultiplier
+        ) / 100;
+    this.endTime += sliderTime * this.repeat;
     this.duration = this.endTime - this.time;
 
-    // currently, there are 4 sliderTypes
-    // Passthrough, Catmull, Bezier, Linear
-    if (sliderType == 'P' && points.length == 3)
-    {
-        this.curve = new CircumscribedCircle(points, this.pixelLength);
-    }
-    else if (sliderType == 'C')
-    {
-        this.curve = new CatmullCurve(points, this.pixelLength);
-    }
-    else
-    {
-        this.curve = new LinearBezier(points, this.pixelLength, sliderType == 'L');
-    }
+    this.curve = Curve.parse(sliderType, points, this.pixelLength);
 
     this.endPosition = this.curve.pointAt(1);
 }
