@@ -15,17 +15,11 @@ Math.lerp = Math.lerp || function(a, b, t)
     }
     return a + (b - a) * t;
 };
-/**
- * Calculate point C's direction by line AB
- *
- * @method ccw
+/** Calculate point C's direction by line AB
  * @return {Number}
- *      1
- *          C is counter-clockwise to AB
- *      0
- *          C is parallel to AB
- *      -1
- *          C is clockwise to AB
+ * 1    C is counter-clockwise to AB
+ * 0    C is parallel to AB
+ * -1   C is clockwise to AB
  */
 Math.ccw = function(a, b, c)
 {
@@ -39,4 +33,4 @@ Math.ccw = function(a, b, c)
         return -1;
     }
     return 0;
-}
+};

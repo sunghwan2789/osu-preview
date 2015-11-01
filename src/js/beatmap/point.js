@@ -33,7 +33,7 @@ Point.prototype.clone = function()
 {
     return new Point(this.x, this.y);
 };
-Point.prototype.add = function(n)
+Point.prototype.translate = function(n)
 {
     if (n instanceof Point)
     {
@@ -47,7 +47,7 @@ Point.prototype.add = function(n)
     }
     return this;
 };
-Point.prototype.mul = function(n)
+Point.prototype.scale = function(n)
 {
     this.x *= n;
     this.y *= n;

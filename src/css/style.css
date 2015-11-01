@@ -6,128 +6,142 @@ body {
     margin: 0;
     background: #000;
 }
-    button {
-        margin: 0;
+
+button {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: #fff;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    font: 14px sans-serif;
+}
+button::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+}
+
+body > * {
+    position: fixed;
+}
+#speed, #control, #title, #mania {
+    background: rgba(0, 0, 0, .6);
+    display: none;
+}
+body.h #speed, body.h #control, body.h #title, body.h #mania.e {
+    display: block;
+}
+
+#container {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+    canvas {
+        transform-origin: 0 0;
+        -webkit-transform-origin: 0 0;
+    }
+
+#play {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 50vmin;
+    text-shadow: 0 0 .05em #000;
+    opacity: 0;
+}
+#play.e {
+    opacity: .6;
+}
+
+#speed {
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 40px;
+}
+    #speed button:not(.e) {
+        color: #666;
+    }
+
+#mania {
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 40px;
+}
+
+#control {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+    input {
+        margin: 4px;
         padding: 0;
+        height: 32px;
+        box-sizing: border-box;
+    }
+    #progress {
+        width: calc(100% - 156px);
+    }
+    #volume {
+        width: 100px;
+    }
+
+#title {
+    top: 0;
+    left: 0;
+    width: 100%;
+    white-space: nowrap;
+}
+    img {
+        vertical-align: middle;
+        position: relative;
         border: 0;
-        outline: 0;
-        background: none;
+        top: -1px;
+        padding: 0 10px;
+    }
+    a {
+        font: 14px/40px sans-serif;
+        border-bottom: 1px dashed transparent;
         color: #fff;
-        cursor: pointer;
-        width: 40px;
-        height: 40px;
-        font: 14px sans-serif;
+        text-decoration: none;
     }
-    button::-moz-focus-inner {
-        padding: 0;
-        border: 0;
+    a:hover {
+        border-bottom-color: #ddd;
     }
-    body > * {
-        position: fixed;
-    }
-    #speed, #control, #title, #mania {
-        background: rgba(0, 0, 0, .6);
-        display: none;
-    }
-    body.h #speed, body.h #control, body.h #title, body.h #mania.e {
-        display: block;
-    }
-    #container {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
-        canvas {
-            transform-origin: 0 0;
-            -webkit-transform-origin: 0 0;
-        }
-    #play {
+    #share {
+        position: absolute;
         top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: .6;
-    }
-        #play.e::before {
-            content: '\25b6';
-            font: 256px sans-serif;
-            text-shadow: 0 0 8px #000;
-        }
-    #speed {
-        top: 50%;
         right: 0;
-        transform: translateY(-50%);
-        width: 40px;
     }
-        #speed button:not(.e) {
-            color: #666;
-        }
-    #mania {
-        top: 50%;
-        left: 0;
-        transform: translateY(-50%);
-        width: 40px;
+
+#sharePrompt {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, .6);
+    display: none;
+}
+    #sharePrompt button {
+        float: right;
+        background: #49f;
     }
-    #control {
-        bottom: 0;
-        left: 0;
+    #sharePrompt input {
         width: 100%;
+        margin: 0;
     }
-        input {
-            margin: 4px;
-            padding: 0;
-            height: 32px;
-            box-sizing: border-box;
-        }
-        #progress {
-            width: calc(100% - 156px);
-        }
-        #volume {
-            width: 100px;
-        }
-    #title {
-        top: 0;
-        left: 0;
-        width: 100%;
-        white-space: nowrap;
-    }
-        img {
-            vertical-align: middle;
-            position: relative;
-            border: 0;
-            top: -1px;
-            padding: 0 10px;
-        }
-        a {
-            font: 14px/40px sans-serif;
-            border-bottom: 1px dashed transparent;
-            color: #fff;
-            text-decoration: none;
-        }
-        a:hover {
-            border-bottom-color: #ddd;
-        }
-        #share, #fullscreen {
-            position: absolute;
-            top: 0;
-            right: 0;
-            font: 21px sans-serif;
-        }
-    #sharePrompt {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, .6);
-        display: none;
-    }
-        #sharePrompt button {
-            float: right;
-            background: #49f;
-        }
-        #sharePrompt input {
-            width: 100%;
-            margin: 0;
-        }
+
+#fullscreen {
+    position: absolute;
+    top: 0;
+    right: 0;
+}

@@ -21,10 +21,10 @@ CentripetalCatmullRom.prototype.constructor = CentripetalCatmullRom;
 CentripetalCatmullRom.prototype.pointAt = function(t)
 {
     t = Math.lerp(1, 2, t);
-    var A1 = this.points[0].clone().mul(1 - t).add(this.points[1].clone().mul(t));
-    var A2 = this.points[1].clone().mul(2 - t).add(this.points[2].clone().mul(t - 1));
-    var A3 = this.points[2].clone().mul(3 - t).add(this.points[3].clone().mul(t - 2));
-    var B1 = A1.clone().mul(2 - t).add(A2.clone().mul(t));
-    var B2 = A2.clone().mul(3 - t).add(A3.clone().mul(t - 1));
-    return B1.clone().mul(2 - t).add(B2.clone().mul(t - 1)).mul(0.5);
+    var A1 = this.points[0].clone().scale(1 - t).translate(this.points[1].clone().scale(t));
+    var A2 = this.points[1].clone().scale(2 - t).translate(this.points[2].clone().scale(t - 1));
+    var A3 = this.points[2].clone().scale(3 - t).translate(this.points[3].clone().scale(t - 2));
+    var B1 = A1.clone().scale(2 - t).translate(A2.clone().scale(t));
+    var B2 = A2.clone().scale(3 - t).translate(A3.clone().scale(t - 1));
+    return B1.clone().scale(2 - t).translate(B2.clone().scale(t - 1)).scale(0.5);
 };
