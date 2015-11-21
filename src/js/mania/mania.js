@@ -1,6 +1,11 @@
 function Mania(osu)
 {
     Beatmap.call(this, osu);
+
+    Player.ctx.translate(Mania.COLUMN_START, 0);
+
+    $('#mania').addClass('e');
+    $('#scroll').text(this.scrollSpeed);
 }
 Mania.prototype = Object.create(Beatmap.prototype);
 Mania.prototype.costructor = Mania;
@@ -18,11 +23,6 @@ Mania.COLUMN_WIDTH = 30;
 Mania.SCROLL_SPEED = 20; // TODO: remember speed changes
 Mania.prototype.initialize = function()
 {
-    // if (typeof HoldNote === 'undefined')
-    // {
-    //     HoldNote = function() {};
-    // }
-
     this.keyCount = this.CircleSize;
     this.columnSize = Beatmap.MAX_X / this.keyCount;
     this.scrollSpeed = Mania.SCROLL_SPEED;
@@ -71,13 +71,6 @@ Mania.prototype.processHitObject = function(hitObject)
     hitObject.position.x = Mania.COLUMN_WIDTH * hitObject.column;
     hitObject.position.y = this.scrollAt(hitObject.time);
     hitObject.endPosition.y = this.scrollAt(hitObject.endTime);
-};
-Mania.prototype.onload = function()
-{
-    Player.ctx.translate(Mania.COLUMN_START, 0);
-
-    $('#mania').addClass('e');
-    $('#scroll').text(this.scrollSpeed);
 };
 Mania.prototype.calcY = function(y, scroll)
 {

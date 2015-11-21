@@ -1,6 +1,6 @@
-function Spinner(data)
+function Spinner(data, beatmap)
 {
-    HitCircle.call(this, data);
+    HitCircle.call(this, data, beatmap);
 
     this.endTime = data[5] | 0;
     this.duration = this.endTime - this.time;
@@ -19,7 +19,7 @@ Spinner.prototype.draw = function(time)
         opacity = 1;
     if (dt >= 0)
     {
-        opacity = (Player.beatmap.approachTime - dt) / Spinner.FADE_IN_TIME;
+        opacity = (this.beatmap.approachTime - dt) / Spinner.FADE_IN_TIME;
     }
     else if (time > this.endTime)
     {

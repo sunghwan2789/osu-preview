@@ -1,6 +1,6 @@
-function HoldNote(data)
+function HoldNote(data, beatmap)
 {
-    HitNote.call(this, data);
+    HitNote.call(this, data, beatmap);
 
     this.endTime = data[5].split(':')[0] | 0;
 }
@@ -12,8 +12,8 @@ HoldNote.WIDTH_SCALE = 0.8;
 HoldNote.OPACITY = 0.66;
 HoldNote.prototype.draw = function(scroll)
 {
-    var sy = Player.beatmap.calcY(this.position.y, scroll) - Mania.COLUMN_WIDTH / 3,
-        ey = Player.beatmap.calcY(this.endPosition.y, scroll) - Mania.COLUMN_WIDTH / 3;
+    var sy = this.beatmap.calcY(this.position.y, scroll) - Mania.COLUMN_WIDTH / 3,
+        ey = this.beatmap.calcY(this.endPosition.y, scroll) - Mania.COLUMN_WIDTH / 3;
 
     var w = Mania.COLUMN_WIDTH * HoldNote.WIDTH_SCALE;
     Player.ctx.globalAlpha = HoldNote.OPACITY;

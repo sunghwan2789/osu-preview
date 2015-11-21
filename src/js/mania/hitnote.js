@@ -1,8 +1,8 @@
-function HitNote(data)
+function HitNote(data, beatmap)
 {
-    HitObject.call(this, data);
+    HitObject.call(this, data, beatmap);
 
-    this.column = Math.max(1, Math.min((this.position.x / Player.beatmap.columnSize + 1) | 0, Player.beatmap.keyCount)) - 1;
+    this.column = Math.max(1, Math.min((this.position.x / this.beatmap.columnSize + 1) | 0, this.beatmap.keyCount)) - 1;
 
     this.endPosition = new Point(data);
     this.endTime = this.time;
@@ -14,7 +14,7 @@ Mania.prototype.hitObjectTypes[HitNote.id] = HitNote;
 HitNote.prototype.draw = function(scroll)
 {
     Player.ctx.beginPath();
-    Player.ctx.rect(this.position.x, Player.beatmap.calcY(this.position.y, scroll) - Mania.COLUMN_WIDTH / 3,
+    Player.ctx.rect(this.position.x, this.beatmap.calcY(this.position.y, scroll) - Mania.COLUMN_WIDTH / 3,
         Mania.COLUMN_WIDTH, Mania.COLUMN_WIDTH / 3);
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();

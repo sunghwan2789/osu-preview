@@ -1,67 +1,7 @@
 function Standard(osu)
 {
     Beatmap.call(this, osu);
-}
-Standard.prototype = Object.create(Beatmap.prototype);
-Standard.prototype.costructor = Standard;
-Standard.prototype.hitObjectTypes = {};
-Standard.id = 0;
-Beatmap.modes[Standard.id] = Standard;
-Standard.DEFAULT_COLORS = [
-    'rgb(0,202,0)',
-    'rgb(18,124,255)',
-    'rgb(242,24,57)',
-    'rgb(255,292,0)'
-];
-Standard.prototype.initialize = function()
-{
-    // if (typeof Slider === 'undefined')
-    // {
-    //     Slider = function() {};
-    // }
-    // if (typeof Spinner === 'undefined')
-    // {
-    //     Spinner = function() {};
-    // }
 
-    var ar = this.ApproachRate || this.OverallDifficulty;
-    this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
-    // https://github.com/itdelatrisu/opsu/commit/8892973d98e04ebaa6656fe2a23749e61a122705
-    this.circleDiameter = 108.848 - (this.CircleSize * 8.9646);
-    this.stackOffset = this.circleDiameter / 20;
-
-    if (this.Colors.length)
-    {
-        this.Colors.push(this.Colors.shift());
-    }
-    else
-    {
-        this.Colors = Standard.DEFAULT_COLORS;
-    }
-    this.tmp.combo = 1;
-    this.tmp.comboIndex = -1;
-    this.tmp.setComboIndex = 1;
-};
-Standard.prototype.processHitObject = function(hitObject)
-{
-    if (hitObject instanceof Spinner)
-    {
-        this.tmp.setComboIndex = 1;
-    }
-    else if (hitObject.newCombo || this.tmp.setComboIndex)
-    {
-        this.tmp.combo = 1;
-        this.tmp.comboIndex = (
-            (this.tmp.comboIndex + 1) + hitObject.comboSkip
-        ) % this.Colors.length;
-        this.tmp.setComboIndex = 0;
-    }
-    hitObject.combo = this.tmp.combo++;
-    hitObject.color = this.Colors[this.tmp.comboIndex];
-};
-Standard.STACK_LENIENCE = 3;
-Standard.prototype.onload = function()
-{
     // calculate stacks
     // https://gist.github.com/peppy/1167470
     for (var i = this.HitObjects.length - 1; i > 0; i--)
@@ -117,6 +57,55 @@ Standard.prototype.onload = function()
     Player.ctx.textAlign = 'center';
     Player.ctx.textBaseline = 'middle';
     Player.ctx.translate((Beatmap.WIDTH - Beatmap.MAX_X) / 2, (Beatmap.HEIGHT - Beatmap.MAX_Y) / 2);
+}
+Standard.prototype = Object.create(Beatmap.prototype);
+Standard.prototype.costructor = Standard;
+Standard.prototype.hitObjectTypes = {};
+Standard.id = 0;
+Beatmap.modes[Standard.id] = Standard;
+Standard.DEFAULT_COLORS = [
+    'rgb(0,202,0)',
+    'rgb(18,124,255)',
+    'rgb(242,24,57)',
+    'rgb(255,292,0)'
+];
+Standard.STACK_LENIENCE = 3;
+Standard.prototype.initialize = function()
+{
+    var ar = this.ApproachRate || this.OverallDifficulty;
+    this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
+    // https://github.com/itdelatrisu/opsu/commit/8892973d98e04ebaa6656fe2a23749e61a122705
+    this.circleDiameter = 108.848 - (this.CircleSize * 8.9646);
+    this.stackOffset = this.circleDiameter / 20;
+
+    if (this.Colors.length)
+    {
+        this.Colors.push(this.Colors.shift());
+    }
+    else
+    {
+        this.Colors = Standard.DEFAULT_COLORS;
+    }
+    this.tmp.combo = 1;
+    this.tmp.comboIndex = -1;
+    this.tmp.setComboIndex = 1;
+};
+Standard.prototype.processHitObject = function(hitObject)
+{
+    if (hitObject instanceof Spinner)
+    {
+        this.tmp.setComboIndex = 1;
+    }
+    else if (hitObject.newCombo || this.tmp.setComboIndex)
+    {
+        this.tmp.combo = 1;
+        this.tmp.comboIndex = (
+            (this.tmp.comboIndex + 1) + hitObject.comboSkip
+        ) % this.Colors.length;
+        this.tmp.setComboIndex = 0;
+    }
+    hitObject.combo = this.tmp.combo++;
+    hitObject.color = this.Colors[this.tmp.comboIndex];
 };
 Standard.prototype.draw = function(time)
 {

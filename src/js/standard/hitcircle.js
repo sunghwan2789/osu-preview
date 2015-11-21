@@ -1,6 +1,6 @@
-function HitCircle(data)
+function HitCircle(data, beatmap)
 {
-    HitObject.call(this, data);
+    HitObject.call(this, data, beatmap);
 
     this.newCombo = this.flag & 4;
     this.comboSkip = this.flag >> 4;
@@ -22,7 +22,7 @@ HitCircle.prototype.draw = function(time)
         opacity = 1;
     if (dt >= 0)
     {
-        opacity = (Player.beatmap.approachTime - dt) / HitCircle.FADE_IN_TIME;
+        opacity = (this.beatmap.approachTime - dt) / HitCircle.FADE_IN_TIME;
     }
     else
     {
@@ -41,25 +41,25 @@ HitCircle.prototype.drawCircle = function(position)
 {
     // HitCircle
     Player.ctx.beginPath();
-    Player.ctx.arc(position.x - this.stack * Player.beatmap.stackOffset,
-        position.y - this.stack * Player.beatmap.stackOffset,
-        Player.beatmap.circleRadius - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
+    Player.ctx.arc(position.x - this.stack * this.beatmap.stackOffset,
+        position.y - this.stack * this.beatmap.stackOffset,
+        this.beatmap.circleRadius - this.beatmap.circleBorder / 2, -Math.PI, Math.PI);
     Player.ctx.shadowBlur = 0;
     Player.ctx.fillStyle = this.color;
     Player.ctx.fill();
     // Overlay
-    Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
+    Player.ctx.shadowBlur = this.beatmap.shadowBlur;
     Player.ctx.strokeStyle = '#fff';
-    Player.ctx.lineWidth = Player.beatmap.circleBorder;
+    Player.ctx.lineWidth = this.beatmap.circleBorder;
     Player.ctx.stroke();
 };
 HitCircle.prototype.drawText = function(position, text, deg)
 {
-    Player.ctx.shadowBlur = Player.beatmap.shadowBlur;
+    Player.ctx.shadowBlur = this.beatmap.shadowBlur;
     Player.ctx.fillStyle = '#fff';
     Player.ctx.save();
-    Player.ctx.translate(position.x - this.stack * Player.beatmap.stackOffset,
-        position.y - this.stack * Player.beatmap.stackOffset);
+    Player.ctx.translate(position.x - this.stack * this.beatmap.stackOffset,
+        position.y - this.stack * this.beatmap.stackOffset);
     if (typeof deg !== 'undefined')
     {
         Player.ctx.rotate(deg);
@@ -69,13 +69,13 @@ HitCircle.prototype.drawText = function(position, text, deg)
 };
 HitCircle.prototype.drawApproach = function(dt)
 {
-    var scale = 1 + dt / Player.beatmap.approachTime * 3;
+    var scale = 1 + dt / this.beatmap.approachTime * 3;
     Player.ctx.beginPath();
-    Player.ctx.arc(this.position.x - this.stack * Player.beatmap.stackOffset,
-        this.position.y - this.stack * Player.beatmap.stackOffset,
-        Player.beatmap.circleRadius * scale - Player.beatmap.circleBorder / 2, -Math.PI, Math.PI);
+    Player.ctx.arc(this.position.x - this.stack * this.beatmap.stackOffset,
+        this.position.y - this.stack * this.beatmap.stackOffset,
+        this.beatmap.circleRadius * scale - this.beatmap.circleBorder / 2, -Math.PI, Math.PI);
     Player.ctx.shadowBlur = 0;
     Player.ctx.strokeStyle = this.color;
-    Player.ctx.lineWidth = Player.beatmap.circleBorder / 2 * scale;
+    Player.ctx.lineWidth = this.beatmap.circleBorder / 2 * scale;
     Player.ctx.stroke();
 };

@@ -92,7 +92,6 @@ Player.loadBeatmap = function(id)
             // Player.beatmap = new Beatmap();
             // Player.beatmap.parse(osu);
             Player.beatmap = Beatmap.parse(osu);
-            Player.beatmap.load();
             $('a', Player.title).text(Player.beatmap.toString());
             $(new Image()).on('load', function() {
                 Player.beatmap.makeBG(this);
