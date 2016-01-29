@@ -31,10 +31,8 @@ function Beatmap(osu)
 
 
     var stream = osu.replace(/\r\n?/g, '\n').split('\n').reverse(),
-        currentSection = undefined,
-        line = undefined,
-        init = undefined;
-    while (typeof (line = stream.pop()) !== 'undefined')
+        currentSection, line;
+    while (typeof (line = stream.pop()) != 'undefined')
     {
         // skip comments
         if (/^\/\//.test(line))
@@ -54,7 +52,7 @@ function Beatmap(osu)
             case 'Metadata':
             case 'Difficulty':
             {
-                // let [key, value] = line.split(':', 2);
+                // let [key, ...value] = line.split(':');
                 var data = line.split(':'),
                     key = data.shift(),
                     value = data.join(':');
@@ -68,7 +66,7 @@ function Beatmap(osu)
             {
                 try
                 {
-                    this.TimingPoints.push(new TimingPoint(line, this));
+                    this.TimingPoints.push(new TimingPoint(line));
                 }
                 catch (e) {}
                 break;
@@ -85,38 +83,19 @@ function Beatmap(osu)
             }
             case 'HitObjects':
             {
-                if (typeof init === 'undefined')
-                {
-                    if (typeof this.initialize !== 'undefined')
-                    {
-                        this.initialize();
-                    }
-                    init = 1;
-                }
                 try
                 {
-                    var hitObject = HitObject.parse(line, this);
-                    if (typeof this.processHitObject !== 'undefined')
-                    {
-                        this.processHitObject(hitObject);
-                    }
-                    this.HitObjects.push(hitObject);
+                    this.HitObjects.push(HitObject.parse(line, this));
                 }
                 catch (e) {}
                 break;
             }
         }
     }
-    if (typeof init === 'undefined' &&
-        typeof this.initialize !== 'undefined')
-    {
-        this.initialize();
-    }
 }
 Beatmap.prototype = {
     hitObjectTypes: undefined,
-    initialize: undefined,
-    processHitObject: undefined,
+    update: undefined,
     draw: undefined,
     processBG: undefined
 };
@@ -168,6 +147,10 @@ Beatmap.prototype.timingPointAt = function(time)
 {
     return this.TimingPoints[this.timingPointIndexAt(time)];
 };
+Beatmap.prototype.refresh = function()
+{
+    this.tmp = {};
+};
 Beatmap.prototype.toString = function()
 {
     var unicode = JSON.parse(localStorage['osu_tool'] || '{"unicode":false}')['unicode'];
@@ -185,21 +168,4 @@ Beatmap.prototype.toString = function()
         ' (', this.Creator, ')',
         ' [', this.Version || 'Normal' , ']'
     ].join('');
-};
-Beatmap.prototype.makeBG = function(img)
-{
-    var canvas = Player.background,
-        ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // TODO osu! 비트맵 설정으로 하던 거 이어서...
-        var aw = img.height * 4 / 3;
-        ctx.drawImage(img, (img.width - aw) / 2, 0, aw, img.height, 0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'rgba(0, 0, 0, .4)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if (typeof this.processBG !== 'undefined')
-    {
-        this.processBG(ctx);
-    }
-    Player.container.css('background-image', 'url(' + canvas.toDataURL('image/png') + ')');
 };

@@ -24,13 +24,13 @@ function Slider(data, beatmap)
 }
 Slider.prototype = Object.create(HitCircle.prototype);
 Slider.prototype.constructor = Slider;
-Slider.id = 2;
-Standard.prototype.hitObjectTypes[Slider.id] = Slider;
+Slider.ID = 2;
+Standard.prototype.hitObjectTypes[Slider.ID] = Slider;
 Slider.FADE_IN_TIME = 375;
 Slider.FADE_OUT_TIME = 200;
 Slider.REVERSE_ARROW = String.fromCharCode(10132);
 Slider.OPACITY = 0.66;
-Slider.prototype.draw = function(time)
+Slider.prototype.draw = function(time, ctx)
 {
     var dt = this.time - time,
         opacity = 1;
@@ -42,62 +42,63 @@ Slider.prototype.draw = function(time)
     {
         opacity = 1 - (time - this.endTime) / Slider.FADE_OUT_TIME;
     }
-    Player.ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
+    ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
 
-    this.drawPath();
-    this.drawCircle(this.endPosition);
-    this.drawCircle(this.position);
+    this.drawPath(ctx);
+    this.drawCircle(this.endPosition, ctx);
+    this.drawCircle(this.position, ctx);
 
     var repeat = -dt * this.repeat / this.duration;
-    if (this.repeat > 1 && repeat <= this.repeat - 1 - this.repeat % 2)
+    //                                   this.repeat - this.repeat % 2: 홀수면 짝수로 내리기
+    if (this.repeat > 1 && repeat + 1 <= (this.repeat & ~1))
     {
-        this.drawText(this.endPosition, Slider.REVERSE_ARROW, this.curve.endAngle);
+        this.drawText(this.endPosition, Slider.REVERSE_ARROW, this.curve.endAngle, ctx);
     }
-    if (repeat > 0 &&
-        repeat <= this.repeat - 1 - (this.repeat + 1) % 2)
+    //                              this.repeat - (this.repeat + 1) % 2: 짝수면 홀수로 내리기
+    if (repeat > 0 && repeat + 1 <= this.repeat - !(this.repeat & 1))
     {
-        this.drawText(this.position, Slider.REVERSE_ARROW, this.curve.startAngle);
+        this.drawText(this.position, Slider.REVERSE_ARROW, this.curve.startAngle, ctx);
     }
     else if (dt >= 0)
     {
-        this.drawText(this.position, this.combo);
+        this.drawText(this.position, this.combo, 0, ctx);
     }
 
     if (dt >= 0)
     {
-        this.drawApproach(dt);
+        this.drawApproach(dt, ctx);
     }
     else if (time < this.endTime)
     {
-        this.drawFollowCircle(repeat);
+        this.drawFollowCircle(repeat, ctx);
     }
 };
-Slider.prototype.drawPath = function()
+Slider.prototype.drawPath = function(ctx)
 {
-    Player.ctx.save();
+    ctx.save();
     // Slider
-    Player.ctx.globalAlpha *= Slider.OPACITY;
-    Player.ctx.beginPath();
-    Player.ctx.moveTo(this.position.x - this.stack * this.beatmap.stackOffset,
+    ctx.globalAlpha *= Slider.OPACITY;
+    ctx.beginPath();
+    ctx.moveTo(this.position.x - this.stack * this.beatmap.stackOffset,
         this.position.y - this.stack * this.beatmap.stackOffset);
     for (var i = 1; i < this.curve.path.length; i++)
     {
-        Player.ctx.lineTo(this.curve.path[i].x - this.stack * this.beatmap.stackOffset,
+        ctx.lineTo(this.curve.path[i].x - this.stack * this.beatmap.stackOffset,
             this.curve.path[i].y - this.stack * this.beatmap.stackOffset);
     }
-    Player.ctx.shadowBlur = 0;
-    Player.ctx.strokeStyle = this.color;
-    Player.ctx.lineWidth = (this.beatmap.circleRadius - this.beatmap.circleBorder) * 2;
-    Player.ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = (this.beatmap.circleRadius - this.beatmap.circleBorder) * 2;
+    ctx.stroke();
     // Border
-    Player.ctx.globalCompositeOperation = 'destination-over';
-    Player.ctx.shadowBlur = 0;
-    Player.ctx.strokeStyle = '#fff';
-    Player.ctx.lineWidth = this.beatmap.circleRadius * 2;
-    Player.ctx.stroke();
-    Player.ctx.restore();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = this.beatmap.circleRadius * 2;
+    ctx.stroke();
+    ctx.restore();
 };
-Slider.prototype.drawFollowCircle = function(repeat)
+Slider.prototype.drawFollowCircle = function(repeat, ctx)
 {
     repeat %= 2;
     if (repeat > 1)
@@ -105,12 +106,12 @@ Slider.prototype.drawFollowCircle = function(repeat)
         repeat = 2 - repeat;
     }
     var point = this.curve.pointAt(repeat);
-    Player.ctx.beginPath();
-    Player.ctx.arc(point.x - this.stack * this.beatmap.stackOffset,
+    ctx.beginPath();
+    ctx.arc(point.x - this.stack * this.beatmap.stackOffset,
         point.y - this.stack * this.beatmap.stackOffset,
         this.beatmap.circleRadius - this.beatmap.circleBorder / 2, -Math.PI, Math.PI);
-    Player.ctx.shadowBlur = this.beatmap.shadowBlur;
-    Player.ctx.strokeStyle = '#fff';
-    Player.ctx.lineWidth = this.beatmap.circleBorder;
-    Player.ctx.stroke();
+    ctx.shadowBlur = this.beatmap.shadowBlur;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = this.beatmap.circleBorder;
+    ctx.stroke();
 }

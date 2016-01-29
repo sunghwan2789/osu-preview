@@ -2,6 +2,41 @@ function Standard(osu)
 {
     Beatmap.call(this, osu);
 
+
+
+    if (this.Colors.length)
+    {
+        this.Colors.push(this.Colors.shift());
+    }
+    else
+    {
+        this.Colors = Standard.DEFAULT_COLORS;
+    }
+    this.tmp.combo = 1;
+    this.tmp.comboIndex = -1;
+    this.tmp.setComboIndex = 1;
+
+
+    for (var i = 0; i < this.HitObjects.length; i++)
+    {
+        var hitObject = this.HitObjects[i];
+        if (hitObject instanceof Spinner)
+        {
+            this.tmp.setComboIndex = 1;
+        }
+        else if (hitObject.newCombo || this.tmp.setComboIndex)
+        {
+            this.tmp.combo = 1;
+            this.tmp.comboIndex = (
+                (this.tmp.comboIndex + 1) + hitObject.comboSkip
+            ) % this.Colors.length;
+            this.tmp.setComboIndex = 0;
+        }
+        hitObject.combo = this.tmp.combo++;
+        hitObject.color = this.Colors[this.tmp.comboIndex];
+    }
+
+
     // calculate stacks
     // https://gist.github.com/peppy/1167470
     for (var i = this.HitObjects.length - 1; i > 0; i--)
@@ -50,19 +85,12 @@ function Standard(osu)
     this.circleRadius = this.circleDiameter / 2;
     this.circleBorder = this.circleRadius / 8;
     this.shadowBlur = this.circleRadius / 15;
-    Player.ctx.shadowColor = '#666';
-    Player.ctx.lineCap = 'round';
-    Player.ctx.lineJoin = 'round';
-    Player.ctx.font = this.circleRadius + 'px "Comic Sans MS", cursive, sans-serif';
-    Player.ctx.textAlign = 'center';
-    Player.ctx.textBaseline = 'middle';
-    Player.ctx.translate((Beatmap.WIDTH - Beatmap.MAX_X) / 2, (Beatmap.HEIGHT - Beatmap.MAX_Y) / 2);
 }
 Standard.prototype = Object.create(Beatmap.prototype);
 Standard.prototype.costructor = Standard;
 Standard.prototype.hitObjectTypes = {};
-Standard.id = 0;
-Beatmap.modes[Standard.id] = Standard;
+Standard.ID = 0;
+Beatmap.modes[Standard.ID] = Standard;
 Standard.DEFAULT_COLORS = [
     'rgb(0,202,0)',
     'rgb(18,124,255)',
@@ -70,50 +98,46 @@ Standard.DEFAULT_COLORS = [
     'rgb(255,292,0)'
 ];
 Standard.STACK_LENIENCE = 3;
-Standard.prototype.initialize = function()
-{
-    var ar = this.ApproachRate || this.OverallDifficulty;
-    this.approachTime = ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
+Object.defineProperties(Standard.prototype, {
+    approachTime: {
+        get: function()
+        {
+            var ar = this.ApproachRate || this.OverallDifficulty;
+            return ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
+        }
+    },
     // https://github.com/itdelatrisu/opsu/commit/8892973d98e04ebaa6656fe2a23749e61a122705
-    this.circleDiameter = 108.848 - (this.CircleSize * 8.9646);
-    this.stackOffset = this.circleDiameter / 20;
-
-    if (this.Colors.length)
-    {
-        this.Colors.push(this.Colors.shift());
+    circleDiameter: {
+        get: function()
+        {
+            return 108.848 - this.CircleSize * 8.9646;
+        }
+    },
+    stackOffset: {
+        get: function()
+        {
+            return this.circleDiameter / 20;
+        }
     }
-    else
-    {
-        this.Colors = Standard.DEFAULT_COLORS;
-    }
-    this.tmp.combo = 1;
-    this.tmp.comboIndex = -1;
-    this.tmp.setComboIndex = 1;
-};
-Standard.prototype.processHitObject = function(hitObject)
+});
+Standard.prototype.update = function(ctx)
 {
-    if (hitObject instanceof Spinner)
-    {
-        this.tmp.setComboIndex = 1;
-    }
-    else if (hitObject.newCombo || this.tmp.setComboIndex)
-    {
-        this.tmp.combo = 1;
-        this.tmp.comboIndex = (
-            (this.tmp.comboIndex + 1) + hitObject.comboSkip
-        ) % this.Colors.length;
-        this.tmp.setComboIndex = 0;
-    }
-    hitObject.combo = this.tmp.combo++;
-    hitObject.color = this.Colors[this.tmp.comboIndex];
+    ctx.shadowColor = '#666';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.font = this.circleRadius + 'px "Comic Sans MS", cursive, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.translate((Beatmap.WIDTH - Beatmap.MAX_X) / 2, (Beatmap.HEIGHT - Beatmap.MAX_Y) / 2);
 };
-Standard.prototype.draw = function(time)
+Standard.prototype.draw = function(time, ctx)
 {
-    if (typeof this.tmp.first === 'undefined')
+    if (typeof this.tmp.first == 'undefined')
     {
         this.tmp.first = 0;
         this.tmp.last = -1;
     }
+
     while (this.tmp.first < this.HitObjects.length)
     {
         var hitObject = this.HitObjects[this.tmp.first];
@@ -135,6 +159,6 @@ Standard.prototype.draw = function(time)
         {
             continue;
         }
-        hitObject.draw(time);
+        hitObject.draw(time, ctx);
     }
 };

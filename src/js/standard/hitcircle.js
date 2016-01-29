@@ -2,9 +2,6 @@ function HitCircle(data, beatmap)
 {
     HitObject.call(this, data, beatmap);
 
-    this.newCombo = this.flag & 4;
-    this.comboSkip = this.flag >> 4;
-
     this.endPosition = new Point(data);
     this.endTime = this.time;
 
@@ -12,11 +9,25 @@ function HitCircle(data, beatmap)
 }
 HitCircle.prototype = Object.create(HitObject.prototype);
 HitCircle.prototype.constructor = HitCircle;
-HitCircle.id = 1;
-Standard.prototype.hitObjectTypes[HitCircle.id] = HitCircle;
+HitCircle.ID = 1;
+Standard.prototype.hitObjectTypes[HitCircle.ID] = HitCircle;
 HitCircle.FADE_IN_TIME = 375;
 HitCircle.FADE_OUT_TIME = 200;
-HitCircle.prototype.draw = function(time)
+Object.defineProperties(HitCircle.prototype, {
+    newCombo: {
+        get: function()
+        {
+            return this.flag & 4;
+        }
+    },
+    comboSkip: {
+        get: function()
+        {
+            return this.flag >> 4;
+        }
+    }
+});
+HitCircle.prototype.draw = function(time, ctx)
 {
     var dt = this.time - time,
         opacity = 1;
@@ -28,54 +39,51 @@ HitCircle.prototype.draw = function(time)
     {
         opacity = 1 + dt / HitCircle.FADE_OUT_TIME;
     }
-    Player.ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
+    ctx.globalAlpha = Math.max(0, Math.min(opacity, 1));
 
-    this.drawCircle(this.position);
-    this.drawText(this.position, this.combo);
+    this.drawCircle(this.position, ctx);
+    this.drawText(this.position, this.combo, 0, ctx);
     if (dt >= 0)
     {
-        this.drawApproach(dt);
+        this.drawApproach(dt, ctx);
     }
 };
-HitCircle.prototype.drawCircle = function(position)
+HitCircle.prototype.drawCircle = function(position, ctx)
 {
     // HitCircle
-    Player.ctx.beginPath();
-    Player.ctx.arc(position.x - this.stack * this.beatmap.stackOffset,
+    ctx.beginPath();
+    ctx.arc(position.x - this.stack * this.beatmap.stackOffset,
         position.y - this.stack * this.beatmap.stackOffset,
         this.beatmap.circleRadius - this.beatmap.circleBorder / 2, -Math.PI, Math.PI);
-    Player.ctx.shadowBlur = 0;
-    Player.ctx.fillStyle = this.color;
-    Player.ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = this.color;
+    ctx.fill();
     // Overlay
-    Player.ctx.shadowBlur = this.beatmap.shadowBlur;
-    Player.ctx.strokeStyle = '#fff';
-    Player.ctx.lineWidth = this.beatmap.circleBorder;
-    Player.ctx.stroke();
+    ctx.shadowBlur = this.beatmap.shadowBlur;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = this.beatmap.circleBorder;
+    ctx.stroke();
 };
-HitCircle.prototype.drawText = function(position, text, deg)
+HitCircle.prototype.drawText = function(position, text, deg, ctx)
 {
-    Player.ctx.shadowBlur = this.beatmap.shadowBlur;
-    Player.ctx.fillStyle = '#fff';
-    Player.ctx.save();
-    Player.ctx.translate(position.x - this.stack * this.beatmap.stackOffset,
+    ctx.shadowBlur = this.beatmap.shadowBlur;
+    ctx.fillStyle = '#fff';
+    ctx.save();
+    ctx.translate(position.x - this.stack * this.beatmap.stackOffset,
         position.y - this.stack * this.beatmap.stackOffset);
-    if (typeof deg !== 'undefined')
-    {
-        Player.ctx.rotate(deg);
-    }
-    Player.ctx.fillText(text, 0, 0);
-    Player.ctx.restore();
+    ctx.rotate(deg);
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
 };
-HitCircle.prototype.drawApproach = function(dt)
+HitCircle.prototype.drawApproach = function(dt, ctx)
 {
     var scale = 1 + dt / this.beatmap.approachTime * 3;
-    Player.ctx.beginPath();
-    Player.ctx.arc(this.position.x - this.stack * this.beatmap.stackOffset,
+    ctx.beginPath();
+    ctx.arc(this.position.x - this.stack * this.beatmap.stackOffset,
         this.position.y - this.stack * this.beatmap.stackOffset,
         this.beatmap.circleRadius * scale - this.beatmap.circleBorder / 2, -Math.PI, Math.PI);
-    Player.ctx.shadowBlur = 0;
-    Player.ctx.strokeStyle = this.color;
-    Player.ctx.lineWidth = this.beatmap.circleBorder / 2 * scale;
-    Player.ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = this.beatmap.circleBorder / 2 * scale;
+    ctx.stroke();
 };

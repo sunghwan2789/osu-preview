@@ -9,16 +9,16 @@ function HitNote(data, beatmap)
 }
 HitNote.prototype = Object.create(HitObject.prototype);
 HitNote.prototype.constructor = HitNote;
-HitNote.id = 1;
-Mania.prototype.hitObjectTypes[HitNote.id] = HitNote;
-HitNote.prototype.draw = function(scroll)
+HitNote.ID = 1;
+Mania.prototype.hitObjectTypes[HitNote.ID] = HitNote;
+HitNote.prototype.draw = function(scroll, ctx)
 {
-    Player.ctx.beginPath();
-    Player.ctx.rect(this.position.x, this.beatmap.calcY(this.position.y, scroll) - Mania.COLUMN_WIDTH / 3,
+    ctx.beginPath();
+    ctx.rect(this.position.x, this.beatmap.calcY(this.position.y, scroll) - Mania.COLUMN_WIDTH / 3,
         Mania.COLUMN_WIDTH, Mania.COLUMN_WIDTH / 3);
-    Player.ctx.fillStyle = this.color;
-    Player.ctx.fill();
-    Player.ctx.strokeStyle = '#ccc';
-    Player.ctx.lineWidth = 1;
-    Player.ctx.stroke();
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    ctx.stroke();
 };

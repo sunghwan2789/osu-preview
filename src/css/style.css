@@ -10,7 +10,7 @@ body {
 button {
     margin: 0;
     padding: 0;
-    border: 0;
+    border: none;
     outline: 0;
     background: none;
     color: #fff;
@@ -43,10 +43,6 @@ body.h #speed, body.h #control, body.h #title, body.h #mania.e {
     background-repeat: no-repeat;
     background-position: center;
 }
-    canvas {
-        transform-origin: 0 0;
-        -webkit-transform-origin: 0 0;
-    }
 
 #play {
     top: 0;

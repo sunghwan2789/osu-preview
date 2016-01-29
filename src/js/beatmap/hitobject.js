@@ -17,7 +17,7 @@ HitObject.parse = function(line, beatmap)
         throw 'invalid data';
     }
 
-    if (typeof beatmap.tmp.mask === 'undefined')
+    if (typeof beatmap.tmp.mask == 'undefined')
     {
         beatmap.tmp.mask = Object.keys(beatmap.hitObjectTypes).reduce(function(a, b)
         {

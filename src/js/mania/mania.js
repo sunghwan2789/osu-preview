@@ -2,29 +2,7 @@ function Mania(osu)
 {
     Beatmap.call(this, osu);
 
-    Player.ctx.translate(Mania.COLUMN_START, 0);
 
-    $('#mania').addClass('e');
-    $('#scroll').text(this.scrollSpeed);
-}
-Mania.prototype = Object.create(Beatmap.prototype);
-Mania.prototype.costructor = Mania;
-Mania.prototype.hitObjectTypes = {};
-Mania.id = 3;
-Beatmap.modes[Mania.id] = Mania;
-Mania.DEFAULT_COLORS = [
-    '#5bf',
-    '#ccc',
-    '#da2'
-];
-Mania.COLUMN_START = 130;
-Mania.HIT_POSITION = 400;
-Mania.COLUMN_WIDTH = 30;
-Mania.SCROLL_SPEED = 20; // TODO: remember speed changes
-Mania.prototype.initialize = function()
-{
-    this.keyCount = this.CircleSize;
-    this.columnSize = Beatmap.MAX_X / this.keyCount;
     this.scrollSpeed = Mania.SCROLL_SPEED;
 
     for (var i = 0; i < this.keyCount; i++)
@@ -56,7 +34,45 @@ Mania.prototype.initialize = function()
         current = next;
         scrollVelocity = base.beatLength / current.beatLength;
     }
-};
+
+
+    for (var i = 0; i < this.HitObjects.length; i++)
+    {
+        var hitObject = this.HitObjects[i];
+        hitObject.color = this.Colors[hitObject.column];
+        hitObject.position.x = Mania.COLUMN_WIDTH * hitObject.column;
+        hitObject.position.y = this.scrollAt(hitObject.time);
+        hitObject.endPosition.y = this.scrollAt(hitObject.endTime);
+    }
+}
+Mania.prototype = Object.create(Beatmap.prototype);
+Mania.prototype.costructor = Mania;
+Mania.prototype.hitObjectTypes = {};
+Mania.ID = 3;
+Beatmap.modes[Mania.ID] = Mania;
+Mania.DEFAULT_COLORS = [
+    '#5bf',
+    '#ccc',
+    '#da2'
+];
+Mania.COLUMN_START = 130;
+Mania.HIT_POSITION = 400;
+Mania.COLUMN_WIDTH = 30;
+Mania.SCROLL_SPEED = 20; // TODO: remember speed changes
+Object.defineProperties(Mania.prototype, {
+    keyCount: {
+        get: function()
+        {
+            return this.CircleSize;
+        }
+    },
+    columnSize: {
+        get: function()
+        {
+            return Beatmap.MAX_X / this.keyCount;
+        }
+    }
+});
 Mania.prototype.scrollAt = function(time)
 {
     var currentIdx = this.timingPointIndexAt(time),
@@ -65,24 +81,22 @@ Mania.prototype.scrollAt = function(time)
         scrollVelocity = base.beatLength / current.beatLength;
     return (time - current.time) * scrollVelocity + this.scrollAtTimingPointIndex[currentIdx];
 };
-Mania.prototype.processHitObject = function(hitObject)
-{
-    hitObject.color = this.Colors[hitObject.column];
-    hitObject.position.x = Mania.COLUMN_WIDTH * hitObject.column;
-    hitObject.position.y = this.scrollAt(hitObject.time);
-    hitObject.endPosition.y = this.scrollAt(hitObject.endTime);
-};
 Mania.prototype.calcY = function(y, scroll)
 {
     return Mania.HIT_POSITION - (y - scroll) * this.scrollSpeed * 0.035;
 };
-Mania.prototype.draw = function(time)
+Mania.prototype.update = function(ctx)
 {
-    if (typeof this.tmp.first === 'undefined')
+    ctx.translate(Mania.COLUMN_START, 0);
+};
+Mania.prototype.draw = function(time, ctx)
+{
+    if (typeof this.tmp.first == 'undefined')
     {
         this.tmp.first = 0;
         this.tmp.last = -1;
     }
+
     var scroll = this.scrollAt(time);
     while (this.tmp.first < this.HitObjects.length &&
         time > this.HitObjects[this.tmp.first].endTime)
@@ -124,12 +138,12 @@ Mania.prototype.draw = function(time)
     while (barlines.length > 0)
     {
         var barline = this.calcY(barlines.pop(), scroll);
-        Player.ctx.beginPath();
-        Player.ctx.moveTo(0, barline);
-        Player.ctx.lineTo(Mania.COLUMN_WIDTH * this.keyCount, barline);
-        Player.ctx.strokeStyle = '#fff';
-        Player.ctx.lineWidth = 1;
-        Player.ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, barline);
+        ctx.lineTo(Mania.COLUMN_WIDTH * this.keyCount, barline);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
     }
     for (var i = this.tmp.first; i <= this.tmp.last; i++)
     {
@@ -138,9 +152,9 @@ Mania.prototype.draw = function(time)
         {
             continue;
         }
-        hitObject.draw(scroll);
+        hitObject.draw(scroll, ctx);
     }
-    Player.ctx.clearRect(0, Mania.HIT_POSITION, Beatmap.WIDTH, Beatmap.HEIGHT - Mania.HIT_POSITION);
+    ctx.clearRect(0, Mania.HIT_POSITION, Beatmap.WIDTH, Beatmap.HEIGHT - Mania.HIT_POSITION);
 };
 Mania.prototype.processBG = function(ctx)
 {
