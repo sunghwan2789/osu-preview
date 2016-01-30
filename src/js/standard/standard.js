@@ -12,28 +12,25 @@ function Standard(osu)
     {
         this.Colors = Standard.DEFAULT_COLORS;
     }
-    this.tmp.combo = 1;
-    this.tmp.comboIndex = -1;
-    this.tmp.setComboIndex = 1;
 
-
+    var combo = 1,
+        comboIndex = -1,
+        setComboIndex = 1;
     for (var i = 0; i < this.HitObjects.length; i++)
     {
         var hitObject = this.HitObjects[i];
         if (hitObject instanceof Spinner)
         {
-            this.tmp.setComboIndex = 1;
+            setComboIndex = 1;
         }
-        else if (hitObject.newCombo || this.tmp.setComboIndex)
+        else if (hitObject.newCombo || setComboIndex)
         {
-            this.tmp.combo = 1;
-            this.tmp.comboIndex = (
-                (this.tmp.comboIndex + 1) + hitObject.comboSkip
-            ) % this.Colors.length;
-            this.tmp.setComboIndex = 0;
+            combo = 1;
+            comboIndex = ((comboIndex + 1) + hitObject.comboSkip) % this.Colors.length;
+            setComboIndex = 0;
         }
-        hitObject.combo = this.tmp.combo++;
-        hitObject.color = this.Colors[this.tmp.comboIndex];
+        hitObject.combo = combo++;
+        hitObject.color = this.Colors[comboIndex];
     }
 
 
@@ -86,24 +83,13 @@ function Standard(osu)
     this.circleBorder = this.circleRadius / 8;
     this.shadowBlur = this.circleRadius / 15;
 }
-Standard.prototype = Object.create(Beatmap.prototype);
-Standard.prototype.costructor = Standard;
-Standard.prototype.hitObjectTypes = {};
-Standard.ID = 0;
-Beatmap.modes[Standard.ID] = Standard;
-Standard.DEFAULT_COLORS = [
-    'rgb(0,202,0)',
-    'rgb(18,124,255)',
-    'rgb(242,24,57)',
-    'rgb(255,292,0)'
-];
-Standard.STACK_LENIENCE = 3;
-Object.defineProperties(Standard.prototype, {
+Standard.prototype = Object.create(Beatmap.prototype, {
     approachTime: {
         get: function()
         {
-            var ar = this.ApproachRate || this.OverallDifficulty;
-            return ar < 5 ? 1800 - ar * 120 : 1200 - (ar - 5) * 150;
+            return this.ApproachRate < 5
+                ? 1800 - this.ApproachRate * 120
+                : 1200 - (this.ApproachRate - 5) * 150;
         }
     },
     // https://github.com/itdelatrisu/opsu/commit/8892973d98e04ebaa6656fe2a23749e61a122705
@@ -120,6 +106,17 @@ Object.defineProperties(Standard.prototype, {
         }
     }
 });
+Standard.prototype.constructor = Standard;
+Standard.prototype.hitObjectTypes = {};
+Standard.ID = 0;
+Beatmap.modes[Standard.ID] = Standard;
+Standard.DEFAULT_COLORS = [
+    'rgb(0,202,0)',
+    'rgb(18,124,255)',
+    'rgb(242,24,57)',
+    'rgb(255,292,0)'
+];
+Standard.STACK_LENIENCE = 3;
 Standard.prototype.update = function(ctx)
 {
     ctx.shadowColor = '#666';

@@ -7,13 +7,7 @@ function HitCircle(data, beatmap)
 
     this.stack = 0;
 }
-HitCircle.prototype = Object.create(HitObject.prototype);
-HitCircle.prototype.constructor = HitCircle;
-HitCircle.ID = 1;
-Standard.prototype.hitObjectTypes[HitCircle.ID] = HitCircle;
-HitCircle.FADE_IN_TIME = 375;
-HitCircle.FADE_OUT_TIME = 200;
-Object.defineProperties(HitCircle.prototype, {
+HitCircle.prototype = Object.create(HitObject.prototype, {
     newCombo: {
         get: function()
         {
@@ -27,6 +21,11 @@ Object.defineProperties(HitCircle.prototype, {
         }
     }
 });
+HitCircle.prototype.constructor = HitCircle;
+HitCircle.ID = 1;
+Standard.prototype.hitObjectTypes[HitCircle.ID] = HitCircle;
+HitCircle.FADE_IN_TIME = 375;
+HitCircle.FADE_OUT_TIME = 200;
 HitCircle.prototype.draw = function(time, ctx)
 {
     var dt = this.time - time,

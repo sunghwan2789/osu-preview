@@ -6,9 +6,7 @@ function HitObject(data, beatmap)
     this.time = data[2] | 0;
     this.flag = data[3] | 0;
 }
-HitObject.prototype = {
-    draw: undefined
-};
+HitObject.prototype.draw = undefined;
 HitObject.parse = function(line, beatmap)
 {
     var data = line.split(',');

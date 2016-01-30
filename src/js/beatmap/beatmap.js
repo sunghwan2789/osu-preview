@@ -93,12 +93,36 @@ function Beatmap(osu)
         }
     }
 }
-Beatmap.prototype = {
-    hitObjectTypes: undefined,
-    update: undefined,
-    draw: undefined,
-    processBG: undefined
-};
+Object.defineProperties(Beatmap.prototype, {
+    Version: {
+        get: function()
+        {
+            return typeof this._Version == 'undefined' || /^$/.test(this._Version)
+                ? 'Normal'
+                : this._Version;
+        },
+        set: function(value)
+        {
+            this._Version = value;
+        }
+    },
+    ApproachRate: {
+        get: function()
+        {
+            return typeof this._ApproachRate == 'undefined'
+                ? this.OverallDifficulty
+                : this._ApproachRate;
+        },
+        set: function(value)
+        {
+            this._ApproachRate = value;
+        }
+    }
+});
+Beatmap.prototype.hitObjectTypes = undefined;
+Beatmap.prototype.update = undefined;
+Beatmap.prototype.draw = undefined;
+Beatmap.prototype.processBG = undefined;
 Beatmap.WIDTH = 640;
 Beatmap.HEIGHT = 480;
 Beatmap.MAX_X = 512;

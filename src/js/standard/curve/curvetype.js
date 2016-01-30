@@ -14,6 +14,4 @@ function CurveType(approxLength)
         this.distance[i] = this.path[i].distanceTo(this.path[i - 1]);
     }
 }
-CurveType.prototype = {
-    pointAt: undefined
-};
+CurveType.prototype.pointAt = undefined;

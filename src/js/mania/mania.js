@@ -46,7 +46,7 @@ function Mania(osu)
     }
 }
 Mania.prototype = Object.create(Beatmap.prototype);
-Mania.prototype.costructor = Mania;
+Mania.prototype.constructor = Mania;
 Mania.prototype.hitObjectTypes = {};
 Mania.ID = 3;
 Beatmap.modes[Mania.ID] = Mania;
