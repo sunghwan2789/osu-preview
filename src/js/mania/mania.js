@@ -7,10 +7,10 @@ function Mania(osu)
 
     for (var i = 0; i < this.keyCount; i++)
     {
-        this.Colors[i] = Mania.DEFAULT_COLORS[i % 2];
+        this.Colors[i] = Mania.DEFAULT_COLORS[i & 1];
     }
     var p = this.keyCount / 2;
-    if (this.keyCount % 2)
+    if (this.keyCount & 1)
     {
         this.Colors[p | 0] = Mania.DEFAULT_COLORS[2];
     }
@@ -20,7 +20,7 @@ function Mania(osu)
     }
 
     // dp for numerous call to this.scrollAt
-    this.scrollAtTimingPointIndex = [];
+    this.scrollAtTimingPointIndex = [ 0 ];
     var currentIdx = this.timingPointIndexAt(0),
         current = this.TimingPoints[currentIdx],
         base = this.TimingPoints[0],
@@ -43,6 +43,22 @@ function Mania(osu)
         hitObject.position.x = Mania.COLUMN_WIDTH * hitObject.column;
         hitObject.position.y = this.scrollAt(hitObject.time);
         hitObject.endPosition.y = this.scrollAt(hitObject.endTime);
+    }
+
+
+    this.barLines = [];
+    var endTime = (this.HitObjects.length ? this.HitObjects[this.HitObjects.length - 1].endTime : 0) + 1;
+    for (var i = 0; i < this.TimingPoints.length; i++)
+    {
+        var current = this.TimingPoints[i],
+            base = current.parent || current,
+            barLength = base.beatLength * base.meter,
+            next = this.TimingPoints[i + 1],
+            barLineLimit = next ? (next.parent || next).time : endTime;
+        for (var barTime = base.time; barTime < barLineLimit; barTime += barLength)
+        {
+            this.barLines.push(this.scrollAt(barTime));
+        }
     }
 }
 Mania.prototype = Object.create(Beatmap.prototype);
@@ -95,6 +111,7 @@ Mania.prototype.draw = function(time, ctx)
     {
         this.tmp.first = 0;
         this.tmp.last = -1;
+        this.tmp.barLine = 0;
     }
 
     var scroll = this.scrollAt(time);
@@ -112,35 +129,17 @@ Mania.prototype.draw = function(time, ctx)
         }
         this.tmp.last++;
     }
-    var barlines = [];
-    for (var i = this.timingPointIndexAt(time); i < this.TimingPoints.length; i++)
+    while (this.tmp.barLine < this.barLines.length &&
+        this.calcY(this.barLines[this.tmp.barLine], scroll) > Beatmap.MAX_Y)
     {
-        var current = this.TimingPoints[i],
-            base = current.parent || current,
-            barLength = base.beatLength * base.meter,
-            n = -(time - base.time) / barLength | 0,
-            barTime = base.time + barLength * n,
-            barline = this.scrollAt(barTime);
-        for (var j = barlines.length - 1; barlines[j] >= barline; j--)
-        {
-            barlines.pop();
-        }
-        while (this.calcY(barline, scroll) > -Mania.COLUMN_WIDTH)
-        {
-            if (barline > scroll)
-            {
-                barlines.push(barline);
-            }
-            barTime += barLength;
-            barline = this.scrollAt(barTime);
-        }
+        this.tmp.barLine++;
     }
-    while (barlines.length > 0)
+    for (var i = this.tmp.barLine; i < this.barLines.length && this.calcY(this.barLines[i], scroll) > -Mania.COLUMN_WIDTH; i++)
     {
-        var barline = this.calcY(barlines.pop(), scroll);
+        var barLine = this.calcY(this.barLines[i], scroll);
         ctx.beginPath();
-        ctx.moveTo(0, barline);
-        ctx.lineTo(Mania.COLUMN_WIDTH * this.keyCount, barline);
+        ctx.moveTo(0, barLine);
+        ctx.lineTo(Mania.COLUMN_WIDTH * this.keyCount, barLine);
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 1;
         ctx.stroke();
