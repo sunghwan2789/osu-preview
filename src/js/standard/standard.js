@@ -122,7 +122,13 @@ Standard.prototype.update = function(ctx)
     ctx.shadowColor = '#666';
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.font = this.circleRadius + 'px "Comic Sans MS", cursive, sans-serif';
+    try
+    {
+        // this code will fail in Firefox(<~ 44)
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=941146
+        ctx.font = this.circleRadius + 'px "Comic Sans MS", cursive, sans-serif';
+    }
+    catch (e) {}
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.translate((Beatmap.WIDTH - Beatmap.MAX_X) / 2, (Beatmap.HEIGHT - Beatmap.MAX_Y) / 2);

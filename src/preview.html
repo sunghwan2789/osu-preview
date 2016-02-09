@@ -2,11 +2,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <!--**********************************************
-        YOU CAN CONTACT ME at sunghwan2789 @ github
-    ***********************************************-->
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="robots" content="nofollow, noindex, noarchive">
+    <meta name="creator" content="https://github.com/sunghwan2789/osu-Preview">
     <title>미리보기 - osu! 비트맵 미러</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <!-- build:inlinecss -->
@@ -15,13 +13,29 @@
 <body class="h">
     <div id="container" class="x-viewbox"></div>
     <button id="play" class="material-icons">&#xE037;</button>
-    <div id="speed"><button value="1.5">DT</button><button class="e" value="1">-</button><button value="0.75">HT</button></div>
-    <div id="mania"><button value="1">+</button><button id="scroll">20</button><button value="-1">-</button></div>
-    <div id="control"><input id="progress" type="range" min="0" max="0" value="0"><input id="volume" type="range" min="0" max="100" value="100"><button id="fullscreen" class="material-icons">&#xE5D0;</button></div>
-    <div id="title"><img src="/_data/BloodCat.svg" width="20" height="30" alt="아까네코 종이모형"><a href="//osu.ppy.sh/b/" target="_blank">-</a><button id="share" class="material-icons">&#xE80D;</button></div>
-
+    <div id="speed"><!--
+         --><button value="1.5">DT</button><!--
+         --><button class="e" value="1">-</button><!--
+         --><button value="0.75">HT</button><!--
+     --></div>
+    <div id="mania"><!--
+         --><button value="1">+</button><!--
+         --><button id="scroll">20</button><!--
+         --><button value="-1">-</button><!--
+     --></div>
+    <div id="control"><!--
+         --><input id="progress" type="range" min="0" max="0" value="0"><!--
+         --><input id="volume" type="range" min="0" max="100" value="100"><!--
+         --><button id="fullscreen" class="material-icons">&#xE5D0;</button><!--
+     --></div>
+    <div id="title"><!--
+         --><img src="/_data/BloodCat.svg" width="20" height="30" alt="아까네코 종이모형"><!--
+         --><a href="//osu.ppy.sh/b/" target="_blank">-</a><!--
+         <button id="share" class="material-icons">&#xE80D;</button>
+     --></div>
+<!--
     <div id="sharePrompt"></div>
-
+ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <!-- build:inlinejs -->
     <script src="js/util.js"></script>
@@ -75,7 +89,7 @@ $(window).on('hashchange', function()
         if (this.beatmap instanceof Mania)
         {
             $('#mania').addClass('e');
-            $('#scroll').text(this.scrollSpeed);
+            $('#scroll').text(this.beatmap.scrollSpeed);
         }
 
         $('#play').addClass('e');
@@ -173,6 +187,23 @@ $('#play').on('click', function(e)
         audio.pause();
     }
 });
+
+$('#fullscreen').on('click', function(e) {
+    e.preventDefault();
+    var doc = window.document;
+    var docEl = doc.documentElement;
+
+    var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        requestFullScreen.call(docEl);
+    }
+    else {
+        cancelFullScreen.call(doc);
+    }
+});
+
     </script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
