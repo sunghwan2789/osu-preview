@@ -2,9 +2,6 @@ function HitCircle(data, beatmap)
 {
     HitObject.call(this, data, beatmap);
 
-    this.endPosition = new Point(data);
-    this.endTime = this.time;
-
     this.stack = 0;
 }
 HitCircle.prototype = Object.create(HitObject.prototype, {

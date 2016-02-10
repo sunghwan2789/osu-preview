@@ -1,6 +1,6 @@
 function Mania(osu)
 {
-    Beatmap.call(this, osu);
+    Scroll.call(this, osu);
 
 
     this.scrollSpeed = Mania.SCROLL_SPEED;
@@ -19,22 +19,6 @@ function Mania(osu)
         this.Colors = this.Colors.slice(0, p).concat(this.Colors.slice(p - 1));
     }
 
-    // dp for numerous call to this.scrollAt
-    this.scrollAtTimingPointIndex = [ 0 ];
-    var currentIdx = this.timingPointIndexAt(0),
-        current = this.TimingPoints[currentIdx],
-        base = this.TimingPoints[0],
-        scrollVelocity = base.beatLength / current.beatLength;
-    this.scrollAtTimingPointIndex[currentIdx] = current.time * scrollVelocity;
-    while (++currentIdx < this.TimingPoints.length)
-    {
-        var next = this.TimingPoints[currentIdx];
-        this.scrollAtTimingPointIndex[currentIdx] = (next.time - current.time) * scrollVelocity +
-            this.scrollAtTimingPointIndex[currentIdx - 1];
-        current = next;
-        scrollVelocity = base.beatLength / current.beatLength;
-    }
-
 
     for (var i = 0; i < this.HitObjects.length; i++)
     {
@@ -44,38 +28,8 @@ function Mania(osu)
         hitObject.position.y = this.scrollAt(hitObject.time);
         hitObject.endPosition.y = this.scrollAt(hitObject.endTime);
     }
-
-
-    this.barLines = [];
-    var endTime = (this.HitObjects.length ? this.HitObjects[this.HitObjects.length - 1].endTime : 0) + 1;
-    for (var i = 0; i < this.TimingPoints.length; i++)
-    {
-        var current = this.TimingPoints[i],
-            base = current.parent || current,
-            barLength = base.beatLength * base.meter,
-            next = this.TimingPoints[i + 1],
-            barLineLimit = next ? (next.parent || next).time : endTime;
-        for (var barTime = base.time; barTime < barLineLimit; barTime += barLength)
-        {
-            this.barLines.push(this.scrollAt(barTime));
-        }
-    }
 }
-Mania.prototype = Object.create(Beatmap.prototype);
-Mania.prototype.constructor = Mania;
-Mania.prototype.hitObjectTypes = {};
-Mania.ID = 3;
-Beatmap.modes[Mania.ID] = Mania;
-Mania.DEFAULT_COLORS = [
-    '#5bf',
-    '#ccc',
-    '#da2'
-];
-Mania.COLUMN_START = 130;
-Mania.HIT_POSITION = 400;
-Mania.COLUMN_WIDTH = 30;
-Mania.SCROLL_SPEED = 20; // TODO: remember speed changes
-Object.defineProperties(Mania.prototype, {
+Mania.prototype = Object.create(Scroll.prototype, {
     keyCount: {
         get: function()
         {
@@ -89,14 +43,19 @@ Object.defineProperties(Mania.prototype, {
         }
     }
 });
-Mania.prototype.scrollAt = function(time)
-{
-    var currentIdx = this.timingPointIndexAt(time),
-        current = this.TimingPoints[currentIdx],
-        base = this.TimingPoints[0],
-        scrollVelocity = base.beatLength / current.beatLength;
-    return (time - current.time) * scrollVelocity + this.scrollAtTimingPointIndex[currentIdx];
-};
+Mania.prototype.constructor = Mania;
+Mania.prototype.hitObjectTypes = {};
+Mania.ID = 3;
+Beatmap.modes[Mania.ID] = Mania;
+Mania.DEFAULT_COLORS = [
+    '#5bf',
+    '#ccc',
+    '#da2'
+];
+Mania.COLUMN_START = 130;
+Mania.HIT_POSITION = 400;
+Mania.COLUMN_WIDTH = 30;
+Mania.SCROLL_SPEED = 20; // TODO: remember speed changes
 Mania.prototype.calcY = function(y, scroll)
 {
     return Mania.HIT_POSITION - (y - scroll) * this.scrollSpeed * 0.035;

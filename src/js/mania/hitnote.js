@@ -3,9 +3,6 @@ function HitNote(data, beatmap)
     HitObject.call(this, data, beatmap);
 
     this.column = Math.max(1, Math.min((this.position.x / this.beatmap.columnSize + 1) | 0, this.beatmap.keyCount)) - 1;
-
-    this.endPosition = new Point(data);
-    this.endTime = this.time;
 }
 HitNote.prototype = Object.create(HitObject.prototype);
 HitNote.prototype.constructor = HitNote;
