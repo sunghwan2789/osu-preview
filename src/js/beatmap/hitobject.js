@@ -3,7 +3,7 @@ function HitObject(data, beatmap)
     this.beatmap = beatmap;
 
     this.position = new Point(data);
-    this.endPosition = this.position;
+    this.endPosition = this.position.clone();
     this.time = data[2] | 0;
     this.endTime = this.time;
     this.flag = data[3] | 0;
@@ -18,14 +18,7 @@ HitObject.parse = function(line, beatmap)
         throw 'invalid data';
     }
 
-    if (typeof beatmap.tmp.mask == 'undefined')
-    {
-        beatmap.tmp.mask = Object.keys(beatmap.hitObjectTypes).reduce(function(a, b)
-        {
-            return a | b;
-        })
-    }
-    var type = data[3] & beatmap.tmp.mask;
+    var type = data[3] & beatmap.hitObjectTypeMask;
     if (!(type in beatmap.hitObjectTypes))
     {
         // throw 'we do not support this hitobject type';

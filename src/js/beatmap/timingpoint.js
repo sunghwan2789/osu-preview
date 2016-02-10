@@ -8,7 +8,7 @@ function TimingPoint(line)
 
     this.time = data[0] | 0;
     this.beatLength = +data[1];
-    this.meter = (data[2] || 4) | 0;
+    this.meter = (data[2] | 0) || 4;
 
     // this is non-inherited timingPoint
     if (this.beatLength >= 0)
@@ -23,7 +23,11 @@ function TimingPoint(line)
         this.meter = this.parent.meter;
     }
 }
-TimingPoint.prototype.getBPM = function()
-{
-    return 60000 / this.beatLength;
-};
+Object.defineProperties(TimingPoint.prototype, {
+    bpm: {
+        get: function()
+        {
+            return 60000 / this.beatLength;
+        }
+    }
+});

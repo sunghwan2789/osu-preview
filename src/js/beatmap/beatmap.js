@@ -12,7 +12,7 @@ function Beatmap(osu)
     this.Artist = '';
     this.ArtistUnicode = undefined;
     this.Creator = '';
-    this.Version = 'Normal';
+    this.Version = undefined;
 
     // [Difficulty]
     this.CircleSize = 5;
@@ -116,6 +116,19 @@ Object.defineProperties(Beatmap.prototype, {
         set: function(value)
         {
             this._ApproachRate = value;
+        }
+    },
+    hitObjectTypeMask: {
+        get: function()
+        {
+            if (typeof this._hitObjectTypeMask == 'undefined')
+            {
+                this._hitObjectTypeMask = Object.keys(this.hitObjectTypes).reduce(function(a, b)
+                {
+                    return a | b;
+                });
+            }
+            return this._hitObjectTypeMask;
         }
     }
 });
