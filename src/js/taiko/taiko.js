@@ -24,7 +24,7 @@ Taiko.DEFAULT_COLORS = [
 Taiko.DIAMETER = 56;
 Taiko.prototype.calcX = function(x, scroll)
 {
-    return (x - scroll) * 20 * 0.025;
+    return (x - scroll) * 20 * (260) / 1000 / (this.SliderMultiplier * 8);
 };
 Taiko.prototype.update = function(ctx)
 {

@@ -4,15 +4,17 @@
  */
 document.addEventListener('DOMContentLoaded', function()
 {
-    window.addEventListener('resize', function()
+    window.addEventListener('resize', thunk);
+    thunk();
+
+    function thunk()
     {
         var viewboxes = document.getElementsByClassName('x-viewbox');
         for (var i = 0; i < viewboxes.length; i++)
         {
             onresize.call(viewboxes[i]);
         }
-    });
-    window.dispatchEvent(new Event('resize'));
+    }
 
     function onresize()
     {
